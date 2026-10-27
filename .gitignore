@@ -41,3 +41,6 @@ node_modules/
 
 # Sanity build/runtime
 .sanity/
+
+# Cloudflare Wrangler local state
+.wrangler/

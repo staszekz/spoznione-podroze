@@ -9,6 +9,7 @@
 		"dev": "astro dev",
 		"build": "astro build",
 		"preview": "astro preview",
+		"preview:cf": "astro build && wrangler dev",
 		"astro": "astro",
 		"studio:dev": "sanity dev",
 		"studio:deploy": "sanity deploy",
@@ -48,6 +49,7 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.5.3",
-		"vite": "^8.1.4"
+		"vite": "^8.1.4",
+		"wrangler": "^4.152.0"
 	}
 }
