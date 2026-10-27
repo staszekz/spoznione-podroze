@@ -21,17 +21,17 @@ const segmentClass =
 	class="flex items-center gap-0.5 rounded-full border border-border p-[3px]"
 >
 	{plHref ? (
-			<a href={plHref} class={`${segmentClass} ${inactiveClass}`}>
-				PL
-			</a>
-		) : (
-			<span class={`${segmentClass} ${activeClass}`}>PL</span>
-		)}
+		<a href={plHref} class={`${segmentClass} ${inactiveClass}`}>
+			PL
+		</a>
+	) : (
+		<span class={`${segmentClass} ${activeClass}`}>PL</span>
+	)}
 	{enHref ? (
-			<a href={enHref} class={`${segmentClass} ${inactiveClass}`}>
-				EN
-			</a>
-		) : (
-			<span class={`${segmentClass} ${activeClass}`}>EN</span>
-		)}
+		<a href={enHref} class={`${segmentClass} ${inactiveClass}`}>
+			EN
+		</a>
+	) : (
+		<span class={`${segmentClass} ${activeClass}`}>EN</span>
+	)}
 </div>

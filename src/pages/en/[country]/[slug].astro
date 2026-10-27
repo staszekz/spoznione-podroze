@@ -35,23 +35,27 @@ const meta = postMeta(lang, post.readingTime, post.photoCount);
 		>
 			{post.title}
 		</h1>
-		{meta && <span class="font-mono text-xs text-subtle-foreground">{meta}</span>}
+		{meta && (
+			<span class="font-mono text-xs text-subtle-foreground">{meta}</span>
+		)}
 		{post.coverImage?.asset && (
-				<div class="overflow-hidden rounded-[18px]">
-					<SanityImage
-						image={post.coverImage}
-						width={1440}
-						height={810}
-						loading="eager"
-						fetchPriority="high"
-					/>
-				</div>
-			)}
-		{post.excerpt && <p class="text-lg leading-[1.55] text-muted-foreground">{post.excerpt}</p>}
+			<div class="overflow-hidden rounded-[18px]">
+				<SanityImage
+					image={post.coverImage}
+					width={1440}
+					height={810}
+					loading="eager"
+					fetchPriority="high"
+				/>
+			</div>
+		)}
+		{post.excerpt && (
+			<p class="text-lg leading-[1.55] text-muted-foreground">{post.excerpt}</p>
+		)}
 		{post.body && (
-				<div class="flex flex-col gap-4 text-base leading-[1.55]">
-					<PortableText value={post.body} />
-				</div>
-			)}
+			<div class="flex flex-col gap-4 text-base leading-[1.55]">
+				<PortableText value={post.body} />
+			</div>
+		)}
 	</article>
 </BaseLayout>

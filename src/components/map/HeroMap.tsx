@@ -1,5 +1,5 @@
 import { Minus, Plus } from "lucide-react";
-import maplibregl from "maplibre-gl";
+import * as maplibregl from "maplibre-gl";
 import { useEffect, useRef } from "react";
 import type { Lang } from "@/i18n/ui";
 import { postPath, ui } from "@/i18n/ui";

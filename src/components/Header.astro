@@ -25,7 +25,7 @@ const navItems = [
 
 <header class="flex items-center justify-between py-4 md:py-[26px]">
 	<a
-		href={localizePath(lang, '/')}
+		href={localizePath(lang, "/")}
 		class="font-display text-lg font-extrabold tracking-[-0.02em] text-foreground md:text-[22px]"
 	>
 		{SITE_TITLE}
@@ -33,13 +33,13 @@ const navItems = [
 
 	<nav class="hidden items-center gap-8 md:flex">
 		{navItems.map((item) => (
-				<a
-					href={item.href}
-					class="text-[15px] font-medium text-nav-foreground hover:text-foreground"
-				>
-					{item.label}
-				</a>
-			))}
+			<a
+				href={item.href}
+				class="text-[15px] font-medium text-nav-foreground hover:text-foreground"
+			>
+				{item.label}
+			</a>
+		))}
 	</nav>
 
 	<div class="flex items-center gap-2.5">
@@ -49,8 +49,8 @@ const navItems = [
 			<MobileMenu
 				client:load
 				items={navItems}
-				openLabel={t('menu.open')}
-				closeLabel={t('menu.close')}
+				openLabel={t("menu.open")}
+				closeLabel={t("menu.close")}
 			/>
 		</div>
 	</div>
