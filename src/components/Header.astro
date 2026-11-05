@@ -47,7 +47,7 @@ const navItems = [
 		<ThemeToggle lang={lang} />
 		<div class="md:hidden">
 			<MobileMenu
-				client:media="(max-width: 767px)"
+				client:media="(width < 48rem)"
 				items={navItems}
 				openLabel={t("menu.open")}
 				closeLabel={t("menu.close")}

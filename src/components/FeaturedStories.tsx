@@ -59,7 +59,10 @@ export default function FeaturedStories({
 							image={main.coverImage}
 							width={880}
 							height={440}
-							sizes="(min-width: 1200px) 680px, (min-width: 768px) 57vw, 100vw"
+							// Fixed-height card + object-cover: the 2:1 photo is drawn at
+							// 2× the card height (880px from md, 600px below) unless the
+							// card is wider, so sizes follows that, not the card width.
+							sizes="(min-width: 768px) 880px, (min-width: 640px) calc(100vw - 40px), 600px"
 							loading="eager"
 							fetchPriority="high"
 							className="transition-transform duration-500 group-hover:scale-[1.03]"
