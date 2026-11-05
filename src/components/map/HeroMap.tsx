@@ -3,6 +3,7 @@ import {
 	lazy,
 	type ReactNode,
 	Suspense,
+	useCallback,
 	useEffect,
 	useRef,
 	useState,
@@ -58,31 +59,36 @@ export default function HeroMap(props: MapViewProps) {
 	const rootRef = useRef<HTMLDivElement>(null);
 	const t = ui[props.lang];
 
+	// The button unmounts once the map starts. If it had focus — whether the
+	// start came from the button or from a scroll/pointer event — keep focus on
+	// the map area instead of letting it fall back to <body>.
+	const start = useCallback(() => {
+		const root = rootRef.current;
+		if (root?.contains(document.activeElement)) root.focus();
+		setStarted(true);
+	}, []);
+
 	useEffect(() => {
 		if (started) return;
-		const start = () => setStarted(true);
 		for (const type of START_EVENTS) {
 			window.addEventListener(type, start, { once: true, passive: true });
 		}
 		return () => {
 			for (const type of START_EVENTS) window.removeEventListener(type, start);
 		};
-	}, [started]);
-
-	// The button unmounts once the map starts; keep keyboard focus on the map
-	// area instead of letting it fall back to <body>.
-	const startFromButton = () => {
-		setStarted(true);
-		rootRef.current?.focus();
-	};
+	}, [started, start]);
 
 	return (
-		<div ref={rootRef} tabIndex={-1} className="h-full w-full outline-none">
+		<div
+			ref={rootRef}
+			tabIndex={-1}
+			className="h-full w-full outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+		>
 			{!started ? (
 				<Placeholder>
 					<button
 						type="button"
-						onClick={startFromButton}
+						onClick={start}
 						className="cursor-pointer rounded-full border border-border-strong bg-card px-5 py-2.5 text-sm font-semibold text-card-foreground shadow-[0_4px_12px_rgba(31,27,22,0.08)] hover:border-foreground"
 					>
 						{t["map.show"]}
@@ -92,13 +98,18 @@ export default function HeroMap(props: MapViewProps) {
 				<MapErrorBoundary
 					fallback={
 						<Placeholder>
-							<button
-								type="button"
-								onClick={() => window.location.reload()}
-								className="cursor-pointer rounded-full border border-border-strong bg-card px-5 py-2.5 text-sm font-semibold text-card-foreground hover:border-foreground"
-							>
-								{t["map.retry"]}
-							</button>
+							<div className="flex flex-col items-center gap-3 px-5 text-center">
+								<p role="alert" className="text-sm text-muted-foreground">
+									{t["map.error"]}
+								</p>
+								<button
+									type="button"
+									onClick={() => window.location.reload()}
+									className="cursor-pointer rounded-full border border-border-strong bg-card px-5 py-2.5 text-sm font-semibold text-card-foreground shadow-[0_4px_12px_rgba(31,27,22,0.08)] hover:border-foreground"
+								>
+									{t["map.retry"]}
+								</button>
+							</div>
 						</Placeholder>
 					}
 				>

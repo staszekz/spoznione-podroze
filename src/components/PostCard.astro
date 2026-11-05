@@ -7,9 +7,15 @@ import type { LatestPost } from "@/sanity/lib/queries";
 interface Props {
 	lang: Lang;
 	post: LatestPost;
+	/** Override when the card sits in a narrower grid than the full-width listing. */
+	sizes?: string;
 }
 
-const { lang, post } = Astro.props;
+const {
+	lang,
+	post,
+	sizes = "(min-width: 1200px) 370px, (min-width: 1024px) 31vw, (min-width: 640px) 48vw, 100vw",
+} = Astro.props;
 
 const meta = postMeta(lang, post.readingTime, post.photoCount);
 const year = tripYear(post.tripDate);
@@ -34,7 +40,7 @@ const date = post.publishedAt
 			image={post.coverImage}
 			width={720}
 			height={450}
-			sizes="(min-width: 1200px) 370px, (min-width: 1024px) 31vw, (min-width: 640px) 48vw, 100vw"
+			sizes={sizes}
 			className="transition-transform duration-500 group-hover:scale-[1.03]"
 		/>
 	</div>

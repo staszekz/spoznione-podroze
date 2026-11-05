@@ -55,7 +55,7 @@ export default function SanityImage({
 	return (
 		<img
 			src={src(width)}
-			srcSet={srcSet}
+			srcSet={srcSet || undefined}
 			sizes={sizes}
 			alt={image.alt ?? ""}
 			width={width}

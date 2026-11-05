@@ -194,7 +194,11 @@ const gallery = (post.gallery ?? []).filter((img) => img.asset);
 				</h2>
 				<div class="grid gap-4 sm:grid-cols-2 md:gap-6 lg:grid-cols-3">
 					{post.related.map((related) => (
-						<PostCard lang={lang} post={related} />
+						<PostCard
+							lang={lang}
+							post={related}
+							sizes="(min-width: 1024px) 200px, (min-width: 640px) 340px, 100vw"
+						/>
 					))}
 				</div>
 			</section>
