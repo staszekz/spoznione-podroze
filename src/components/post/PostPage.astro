@@ -74,6 +74,7 @@ const gallery = (post.gallery ?? []).filter((img) => img.asset);
 					image={post.coverImage}
 					width={1600}
 					height={900}
+					sizes="100vw"
 					loading="eager"
 					fetchPriority="high"
 				/>
@@ -149,7 +150,12 @@ const gallery = (post.gallery ?? []).filter((img) => img.asset);
 						{gallery.map((img) => (
 							<figure class="flex flex-col gap-1.5">
 								<div class="aspect-[4/3] overflow-hidden rounded-[12px]">
-									<SanityImage image={img} width={640} height={480} />
+									<SanityImage
+										image={img}
+										width={640}
+										height={480}
+										sizes="(min-width: 768px) 230px, 50vw"
+									/>
 								</div>
 								{img.caption && (
 									<figcaption class="text-xs text-muted-foreground">

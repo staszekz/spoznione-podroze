@@ -59,6 +59,7 @@ export default function FeaturedStories({
 							image={main.coverImage}
 							width={880}
 							height={440}
+							sizes="(min-width: 1200px) 680px, (min-width: 768px) 57vw, 100vw"
 							loading="eager"
 							fetchPriority="high"
 							className="transition-transform duration-500 group-hover:scale-[1.03]"
@@ -96,6 +97,7 @@ export default function FeaturedStories({
 											image={story.coverImage}
 											width={240}
 											height={240}
+											sizes="(min-width: 768px) 120px, 92px"
 										/>
 									</div>
 									<div className="flex flex-col gap-1 self-center md:gap-1.5">
