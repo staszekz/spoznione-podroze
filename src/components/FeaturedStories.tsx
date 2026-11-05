@@ -1,7 +1,7 @@
 import { useStore } from "@nanostores/react";
 import SanityImage from "@/components/SanityImage";
 import type { Lang } from "@/i18n/ui";
-import { postMeta, postPath, routes, ui } from "@/i18n/ui";
+import { postMeta, postPath, routes, tripYear, ui } from "@/i18n/ui";
 import type { ContinentSummary, StoryCard } from "@/sanity/lib/queries";
 import { $activeContinent } from "@/stores/activeContinent";
 
@@ -66,7 +66,9 @@ export default function FeaturedStories({
 						<div className="pointer-events-none absolute inset-x-0 bottom-0 h-[60%] bg-gradient-to-t from-scrim/80 to-transparent" />
 						<div className="pointer-events-none absolute inset-x-[18px] bottom-[18px] flex flex-col gap-2 md:inset-x-7 md:bottom-7">
 							<span className="font-mono text-[10px] uppercase tracking-[0.08em] text-on-image-eyebrow md:text-[11px]">
-								{main.country.name} · {continent?.name}
+								{[main.country.name, continent?.name, tripYear(main.tripDate)]
+									.filter(Boolean)
+									.join(" · ")}
 							</span>
 							<span className="font-display text-[25px] font-bold leading-[1.08] tracking-[-0.02em] text-on-image md:text-4xl md:leading-[1.06]">
 								{main.title}
@@ -99,6 +101,8 @@ export default function FeaturedStories({
 									<div className="flex flex-col gap-1 self-center md:gap-1.5">
 										<span className="font-mono text-[10px] uppercase tracking-[0.05em] text-primary md:text-[10.5px]">
 											{story.country.name}
+											{tripYear(story.tripDate) &&
+												` · ${tripYear(story.tripDate)}`}
 										</span>
 										<span className="font-display text-base font-semibold leading-[1.2] md:text-[19px] md:leading-[1.16]">
 											{story.title}

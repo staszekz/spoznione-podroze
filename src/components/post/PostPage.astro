@@ -1,0 +1,197 @@
+---
+import { PortableText, toPlainText } from "astro-portabletext";
+import type { Block, TypedObject } from "astro-portabletext/types";
+import PostCard from "@/components/PostCard.astro";
+import SanityImage from "@/components/SanityImage.tsx";
+import type { Lang } from "@/i18n/ui";
+import {
+	postPath,
+	readingLine,
+	routes,
+	tripLine,
+	ui,
+	updatedLine,
+} from "@/i18n/ui";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { slugify } from "@/lib/utils";
+import type { PostDetail } from "@/sanity/lib/queries";
+import PtH2 from "./PtH2.astro";
+import PtImage from "./PtImage.astro";
+
+interface Props {
+	lang: Lang;
+	post: PostDetail;
+}
+
+const { lang, post } = Astro.props;
+const t = ui[lang];
+
+const otherLang: Lang = lang === "pl" ? "en" : "pl";
+const translation = post.translations?.find(
+	(tr) => tr?.language === otherLang && tr.slug && tr.country,
+);
+const altHref =
+	translation?.slug && translation.country
+		? postPath(otherLang, translation.country, translation.slug)
+		: undefined;
+
+const metaLines = [
+	tripLine(lang, post.tripDate, post.publishedAt),
+	updatedLine(lang, post.updatedAt, post.updateNote),
+	readingLine(lang, post.readingTime, post.photoCount),
+].filter(Boolean);
+
+// Give every h2 a unique anchor id; the table of contents links to them.
+const toc: { id: string; text: string }[] = [];
+const usedIds = new Set<string>();
+const body: TypedObject[] = (post.body ?? []).map((node) => {
+	const block = node as Block;
+	if (block._type !== "block" || block.style !== "h2") return node;
+	const text = toPlainText(block);
+	const base = slugify(text) || "section";
+	// Suffix until free: "A", "A", "A 2" must not all end up as "a-2".
+	let id = base;
+	for (let n = 2; usedIds.has(id); n++) id = `${base}-${n}`;
+	usedIds.add(id);
+	toc.push({ id, text });
+	return { ...block, headingId: id };
+});
+const showToc = toc.length >= 3;
+
+const gallery = (post.gallery ?? []).filter((img) => img.asset);
+---
+
+<BaseLayout
+	lang={lang}
+	title={post.title}
+	description={post.excerpt ?? post.title}
+	altHref={altHref}
+>
+	<article class="flex flex-col pb-12 md:pb-16">
+		{post.coverImage?.asset && (
+			<div class="mx-[calc(50%-50vw)] h-[62vw] max-h-[78vh] min-h-[260px] w-screen overflow-hidden">
+				<SanityImage
+					image={post.coverImage}
+					width={1600}
+					height={900}
+					loading="eager"
+					fetchPriority="high"
+				/>
+			</div>
+		)}
+
+		<div class="mx-auto flex w-full max-w-[720px] flex-col gap-5 pt-8 md:pt-12">
+			<p class="text-sm font-semibold text-primary-dark dark:text-primary">
+				{post.country.name}
+			</p>
+			<h1
+				class="font-display text-4xl font-bold leading-[1.06] tracking-[-0.03em] md:text-5xl"
+			>
+				{post.title}
+			</h1>
+			{metaLines.length > 0 && (
+				<div class="flex flex-col gap-1 text-sm text-muted-foreground">
+					{metaLines.map((line) => (
+						<p>{line}</p>
+					))}
+				</div>
+			)}
+			{post.excerpt && (
+				<p class="text-lg leading-[1.55] text-muted-foreground">
+					{post.excerpt}
+				</p>
+			)}
+
+			{showToc && (
+				<nav
+					aria-labelledby="post-toc-title"
+					class="rounded-2xl border border-border bg-card p-5"
+				>
+					<h2 id="post-toc-title" class="text-sm font-semibold">
+						{t["post.toc"]}
+					</h2>
+					<ol class="mt-2 flex list-decimal flex-col gap-1 pl-5 text-[15px]">
+						{toc.map((item) => (
+							<li>
+								<a
+									href={`#${item.id}`}
+									class="hover:text-primary-dark dark:hover:text-primary"
+								>
+									{item.text}
+								</a>
+							</li>
+						))}
+					</ol>
+				</nav>
+			)}
+
+			{body.length > 0 && (
+				<div class="post-body">
+					<PortableText
+						value={body}
+						components={{ block: { h2: PtH2 }, type: { image: PtImage } }}
+					/>
+				</div>
+			)}
+
+			{gallery.length > 0 && (
+				<section
+					aria-labelledby="post-gallery-title"
+					class="flex flex-col gap-4 pt-6"
+				>
+					<h2
+						id="post-gallery-title"
+						class="font-display text-[28px] font-bold leading-[1.15] tracking-[-0.02em]"
+					>
+						{t["post.gallery"]}
+					</h2>
+					<div class="grid grid-cols-2 gap-3 md:grid-cols-3">
+						{gallery.map((img) => (
+							<figure class="flex flex-col gap-1.5">
+								<div class="aspect-[4/3] overflow-hidden rounded-[12px]">
+									<SanityImage image={img} width={640} height={480} />
+								</div>
+								{img.caption && (
+									<figcaption class="text-xs text-muted-foreground">
+										{img.caption}
+									</figcaption>
+								)}
+							</figure>
+						))}
+					</div>
+				</section>
+			)}
+
+			<aside
+				class="mt-6 flex flex-col gap-2 rounded-2xl border border-border bg-card p-5"
+			>
+				<p class="text-[15px] leading-[1.55]">{t["post.authorText"]}</p>
+				<a
+					href={routes[lang].about}
+					class="text-[15px] font-semibold text-primary-dark hover:underline dark:text-primary"
+				>
+					{`${t["post.authorLink"]} →`}
+				</a>
+			</aside>
+		</div>
+
+		{post.related.length > 0 && (
+			<section
+				aria-labelledby="post-related-title"
+				class="flex flex-col gap-5 pt-14"
+			>
+				<h2
+					id="post-related-title"
+					class="font-display text-[28px] font-bold leading-[1.15] tracking-[-0.02em]"
+				>
+					{t["post.related"]}
+				</h2>
+				<div class="grid gap-4 sm:grid-cols-2 md:gap-6 lg:grid-cols-3">
+					{post.related.map((related) => (
+						<PostCard lang={lang} post={related} />
+					))}
+				</div>
+			</section>
+		)}
+	</article>
+</BaseLayout>

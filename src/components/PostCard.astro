@@ -1,7 +1,7 @@
 ---
 import SanityImage from "@/components/SanityImage.tsx";
 import type { Lang } from "@/i18n/ui";
-import { postMeta, postPath } from "@/i18n/ui";
+import { postMeta, postPath, tripYear } from "@/i18n/ui";
 import type { LatestPost } from "@/sanity/lib/queries";
 
 interface Props {
@@ -12,6 +12,7 @@ interface Props {
 const { lang, post } = Astro.props;
 
 const meta = postMeta(lang, post.readingTime, post.photoCount);
+const year = tripYear(post.tripDate);
 
 const date = post.publishedAt
 	? new Intl.DateTimeFormat(lang === "pl" ? "pl-PL" : "en-US", {
@@ -40,7 +41,7 @@ const date = post.publishedAt
 		<span
 			class="font-mono text-[10px] uppercase tracking-[0.05em] text-primary md:text-[10.5px]"
 		>
-			{post.country.name}
+			{post.country.name}{year && ` · ${year}`}
 		</span>
 		<h3
 			class="font-display text-lg font-semibold leading-[1.18] tracking-[-0.01em] md:text-[21px]"

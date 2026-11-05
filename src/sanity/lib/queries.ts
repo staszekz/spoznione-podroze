@@ -1,4 +1,5 @@
 import { sanityClient } from "sanity:client";
+import type { TypedObject } from "astro-portabletext/types";
 import { defineQuery } from "groq";
 import type { Lang } from "@/i18n/ui";
 
@@ -21,6 +22,7 @@ const postCardFragment = /* groq */ `
 	readingTime,
 	photoCount,
 	publishedAt,
+	tripDate,
 	coverImage { ${imageFragment} },
 	country->{
 		"name": name[$lang],
@@ -59,6 +61,7 @@ export interface StoryCard {
 	excerpt: string | null;
 	readingTime: number | null;
 	photoCount: number | null;
+	tripDate: string | null;
 	coverImage: SanityImage | null;
 	country: {
 		name: string;
@@ -133,11 +136,57 @@ export async function getPostSlugs(
 const POST_QUERY = defineQuery(/* groq */ `
 	*[_type == "post" && language == $lang && slug.current == $slug && country->slug[$lang].current == $country][0] {
 		${postCardFragment},
-		body
+		updatedAt,
+		updateNote,
+		body[] {
+			...,
+			_type == "image" => { _key, _type, caption, ${imageFragment} }
+		},
+		gallery[] { _key, caption, ${imageFragment} },
+		"translations": *[_type == "translation.metadata" && references(^._id)][0]
+			.translations[].value->{
+				language,
+				"slug": slug.current,
+				"country": select(
+					language == "en" => country->slug.en.current,
+					country->slug.pl.current
+				)
+			},
+		"related": *[_type == "post" && language == $lang && _id != ^._id
+			&& country._ref == ^.country._ref && defined(slug.current)
+			&& defined(country->slug[$lang].current)]
+			| order(publishedAt desc)[0...3] {
+			${postCardFragment}
+		}
 	}
 `);
 
-export async function getPost(lang: Lang, country: string, slug: string) {
+export interface CaptionedImage extends SanityImage {
+	_key: string;
+	caption?: string | null;
+}
+
+export interface PostTranslation {
+	language: string | null;
+	slug: string | null;
+	country: string | null;
+}
+
+export interface PostDetail extends LatestPost {
+	updatedAt: string | null;
+	updateNote: string | null;
+	body: TypedObject[] | null;
+	gallery: CaptionedImage[] | null;
+	/** Every language version of this post, the current one included. */
+	translations: (PostTranslation | null)[] | null;
+	related: LatestPost[];
+}
+
+export async function getPost(
+	lang: Lang,
+	country: string,
+	slug: string,
+): Promise<PostDetail | null> {
 	return await sanityClient.fetch(POST_QUERY, { lang, country, slug });
 }
 
@@ -149,6 +198,7 @@ export interface LatestPost {
 	readingTime: number | null;
 	photoCount: number | null;
 	publishedAt: string | null;
+	tripDate: string | null;
 	coverImage: SanityImage | null;
 	country: { name: string; slug: string };
 }
