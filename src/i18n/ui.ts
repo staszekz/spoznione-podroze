@@ -22,7 +22,16 @@ export const ui = {
 		"featured.heading": "wybrane historie",
 		"featured.allCountries": "Wszystkie kraje",
 		"featured.readingMeta": "min",
-		"featured.photos": "zdjęcia",
+		"post.trip": "Podróż",
+		"post.written": "Opisana",
+		"post.updated": "Zaktualizowano",
+		"post.readingTime": "min czytania",
+		"post.toc": "Spis treści",
+		"post.gallery": "Galeria",
+		"post.related": "Więcej historii z tego kraju",
+		"post.authorText":
+			"Długo odkładałem podróże i pisanie o nich. Teraz nadrabiam: opisuję nowe wyprawy i te z ostatnich lat.",
+		"post.authorLink": "Więcej o mnie",
 		"latest.title": "Najnowsze",
 		"latest.lead": "Wszystkie historie po kolei — od najnowszej.",
 		"latest.empty": "Nie ma jeszcze żadnych wpisów.",
@@ -58,7 +67,16 @@ export const ui = {
 		"featured.heading": "selected stories",
 		"featured.allCountries": "All countries",
 		"featured.readingMeta": "min",
-		"featured.photos": "photos",
+		"post.trip": "Trip",
+		"post.written": "Written",
+		"post.updated": "Updated",
+		"post.readingTime": "min read",
+		"post.toc": "Contents",
+		"post.gallery": "Gallery",
+		"post.related": "More stories from this country",
+		"post.authorText":
+			"I put off travelling and writing about it for years. Now I'm catching up: new trips and ones from the past decade.",
+		"post.authorLink": "More about me",
 		"latest.title": "Latest",
 		"latest.lead": "Every story in order — newest first.",
 		"latest.empty": "No posts yet.",
@@ -129,7 +147,7 @@ export function postMeta(
 		readingTime
 			? `☕ ${readingTime} ${ui[lang]["featured.readingMeta"]}`
 			: null,
-		photoCount ? `${photoCount} ${ui[lang]["featured.photos"]}` : null,
+		photoCount ? photosText(lang, photoCount) : null,
 	]
 		.filter(Boolean)
 		.join(" · ");
@@ -142,4 +160,77 @@ export function postPath(
 	postSlug: string,
 ): string {
 	return localizePath(lang, `/${countrySlug}/${postSlug}`);
+}
+
+/** Year of a `YYYY-MM-DD` trip date, for card eyebrows; null when missing. */
+export function tripYear(tripDate: string | null | undefined): string | null {
+	return tripDate ? tripDate.slice(0, 4) : null;
+}
+
+// `date` fields are plain calendar days → format in UTC so no timezone shifts
+// the month. `datetime` fields are instants → show the author's local month.
+function formatMonthYear(lang: Lang, value: string, timeZone: string): string {
+	return new Intl.DateTimeFormat(lang === "pl" ? "pl-PL" : "en-US", {
+		month: "long",
+		year: "numeric",
+		timeZone,
+	}).format(new Date(value));
+}
+
+const AUTHOR_TZ = "Europe/Warsaw";
+
+/**
+ * "Podróż: wrzesień 2017. Opisana: listopad 2026." — the publish month is
+ * dropped when the trip and the post share a year. Null without a trip date.
+ */
+export function tripLine(
+	lang: Lang,
+	tripDate: string | null | undefined,
+	publishedAt: string | null | undefined,
+): string | null {
+	if (!tripDate) return null;
+	const trip = `${ui[lang]["post.trip"]}: ${formatMonthYear(lang, tripDate, "UTC")}.`;
+	if (!publishedAt) return trip;
+	const publishedYear = new Intl.DateTimeFormat("en", {
+		year: "numeric",
+		timeZone: AUTHOR_TZ,
+	}).format(new Date(publishedAt));
+	if (publishedYear === tripYear(tripDate)) return trip;
+	return `${trip} ${ui[lang]["post.written"]}: ${formatMonthYear(lang, publishedAt, AUTHOR_TZ)}.`;
+}
+
+/** "Zaktualizowano: listopad 2027. {note}" — null when the post has no manual update date. */
+export function updatedLine(
+	lang: Lang,
+	updatedAt: string | null | undefined,
+	updateNote: string | null | undefined,
+): string | null {
+	if (!updatedAt) return null;
+	const line = `${ui[lang]["post.updated"]}: ${formatMonthYear(lang, updatedAt, AUTHOR_TZ)}.`;
+	const note = updateNote?.trim();
+	if (!note) return line;
+	return `${line} ${/[.!?…]$/.test(note) ? note : `${note}.`}`;
+}
+
+const photoWords: Record<Lang, Partial<Record<Intl.LDMLPluralRule, string>>> = {
+	pl: { one: "zdjęcie", few: "zdjęcia", many: "zdjęć", other: "zdjęcia" },
+	en: { one: "photo", other: "photos" },
+};
+
+/** "1 zdjęcie", "24 zdjęcia", "48 zdjęć" — Polish has three plural forms. */
+function photosText(lang: Lang, count: number): string {
+	const rule = new Intl.PluralRules(lang).select(count);
+	return `${count} ${photoWords[lang][rule] ?? photoWords[lang].other}`;
+}
+
+/** "8 min czytania, 24 zdjęcia." — plain-sentence post meta with plural forms; null when both are missing. */
+export function readingLine(
+	lang: Lang,
+	readingTime: number | null | undefined,
+	photoCount: number | null | undefined,
+): string | null {
+	const parts: string[] = [];
+	if (readingTime) parts.push(`${readingTime} ${ui[lang]["post.readingTime"]}`);
+	if (photoCount) parts.push(photosText(lang, photoCount));
+	return parts.length ? `${parts.join(", ")}.` : null;
 }

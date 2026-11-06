@@ -1,0 +1,12 @@
+---
+import type { BlockProps } from "astro-portabletext/types";
+
+type Props = BlockProps;
+
+// PostPage adds `headingId` to every h2 block so the table of contents can link to it.
+const { node } = Astro.props;
+const id = (node as typeof node & { headingId?: string }).headingId;
+---
+
+<!-- biome-ignore lint/a11y/useHeadingContent: heading text comes from the Portable Text span via the slot -->
+<h2 id={id}><slot /></h2>

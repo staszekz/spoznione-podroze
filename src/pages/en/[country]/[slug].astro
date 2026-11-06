@@ -1,8 +1,5 @@
 ---
-import { PortableText } from "astro-portabletext";
-import SanityImage from "@/components/SanityImage.tsx";
-import { postMeta } from "@/i18n/ui";
-import BaseLayout from "@/layouts/BaseLayout.astro";
+import PostPage from "@/components/post/PostPage.astro";
 import { getPost } from "@/sanity/lib/queries";
 
 export async function getStaticPaths() {
@@ -16,46 +13,6 @@ const slug = Astro.params.slug ?? "";
 const country = Astro.params.country ?? "";
 const post = await getPost(lang, country, slug);
 if (!post) return Astro.redirect("/404");
-const meta = postMeta(lang, post.readingTime, post.photoCount);
 ---
 
-<BaseLayout
-	lang={lang}
-	title={post.title}
-	description={post.excerpt ?? post.title}
->
-	<article class="mx-auto flex max-w-[720px] flex-col gap-5 py-10 md:py-16">
-		<span
-			class="font-mono text-[11px] uppercase tracking-[0.08em] text-primary"
-		>
-			{post.country?.name}
-		</span>
-		<h1
-			class="font-display text-4xl font-bold leading-[1.06] tracking-[-0.03em] md:text-5xl"
-		>
-			{post.title}
-		</h1>
-		{meta && (
-			<span class="font-mono text-xs text-subtle-foreground">{meta}</span>
-		)}
-		{post.coverImage?.asset && (
-			<div class="overflow-hidden rounded-[18px]">
-				<SanityImage
-					image={post.coverImage}
-					width={1440}
-					height={810}
-					loading="eager"
-					fetchPriority="high"
-				/>
-			</div>
-		)}
-		{post.excerpt && (
-			<p class="text-lg leading-[1.55] text-muted-foreground">{post.excerpt}</p>
-		)}
-		{post.body && (
-			<div class="flex flex-col gap-4 text-base leading-[1.55]">
-				<PortableText value={post.body} />
-			</div>
-		)}
-	</article>
-</BaseLayout>
+<PostPage lang={lang} post={post} />

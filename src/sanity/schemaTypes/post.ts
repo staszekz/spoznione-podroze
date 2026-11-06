@@ -1,5 +1,10 @@
 import { defineArrayMember, defineField, defineType } from "sanity";
 
+// Sanity extracts image metadata only at upload, and only the keys listed here.
+// Listing them replaces the defaults, so lqip/blurhash/palette must stay explicit.
+// exif + location (GPS) feed the map and lightbox captions later (LAN-163).
+const imageMetadata = ["blurhash", "lqip", "palette", "exif", "location"];
+
 export const post = defineType({
 	name: "post",
 	title: "Post",
@@ -43,7 +48,7 @@ export const post = defineType({
 			name: "coverImage",
 			title: "Cover image",
 			type: "image",
-			options: { hotspot: true },
+			options: { hotspot: true, metadata: imageMetadata },
 			fields: [
 				defineField({ name: "alt", title: "Alternative text", type: "string" }),
 			],
@@ -56,11 +61,17 @@ export const post = defineType({
 			of: [
 				defineArrayMember({
 					type: "image",
-					options: { hotspot: true },
+					options: { hotspot: true, metadata: imageMetadata },
 					fields: [
 						defineField({
 							name: "alt",
 							title: "Alternative text",
+							type: "string",
+						}),
+						defineField({
+							name: "caption",
+							title: "Caption",
+							description: "Optional, shown under the photo.",
 							type: "string",
 						}),
 					],
@@ -86,10 +97,40 @@ export const post = defineType({
 			initialValue: false,
 		}),
 		defineField({
+			name: "tripDate",
+			title: "Trip date",
+			description:
+				"When the trip happened (not the publish date). Month and year are enough — the day can be the 1st.",
+			type: "date",
+			validation: (rule) => rule.required(),
+		}),
+		defineField({
 			name: "publishedAt",
 			title: "Published at",
 			type: "datetime",
 			validation: (rule) => rule.required(),
+		}),
+		defineField({
+			name: "updatedAt",
+			title: "Updated at",
+			description:
+				"Set only for a meaningful content update, not for a typo fix. Shown to readers as “Updated: …”.",
+			type: "datetime",
+		}),
+		defineField({
+			name: "updateNote",
+			title: "Update note",
+			description:
+				"What changed, e.g. “New ticket prices and opening hours”. Shown next to the update date.",
+			type: "string",
+			validation: (rule) => rule.max(140),
+		}),
+		defineField({
+			name: "location",
+			title: "Location",
+			description:
+				"Main place of the story, e.g. a city or a park. Copy coordinates from Google Maps (right-click the place).",
+			type: "geopoint",
 		}),
 		defineField({
 			name: "body",
@@ -99,11 +140,17 @@ export const post = defineType({
 				defineArrayMember({ type: "block" }),
 				defineArrayMember({
 					type: "image",
-					options: { hotspot: true },
+					options: { hotspot: true, metadata: imageMetadata },
 					fields: [
 						defineField({
 							name: "alt",
 							title: "Alternative text",
+							type: "string",
+						}),
+						defineField({
+							name: "caption",
+							title: "Caption",
+							description: "Optional, shown under the photo.",
 							type: "string",
 						}),
 					],
