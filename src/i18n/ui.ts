@@ -41,8 +41,7 @@ export const ui = {
 		"collab.ctaAbout": "O mnie",
 		"collab.ctaCollab": "Współpraca",
 		"footer.meta": "Instagram · Newsletter · © 2026 · PL / EN",
-		"footer.ai":
-			"dla agentów AI: mcp.spoznionepodroze.pl · /llms.txt · MCP (searchArticles, getDestinationInfo)",
+		"footer.ai": "dla agentów AI: /llms.txt",
 		"map.hint": "przesuń i przybliż",
 		"map.read": "Czytaj",
 		"map.label": "Mapa podróży",
@@ -91,8 +90,7 @@ export const ui = {
 		"collab.ctaAbout": "About me",
 		"collab.ctaCollab": "Work with me",
 		"footer.meta": "Instagram · Newsletter · © 2026 · PL / EN",
-		"footer.ai":
-			"for AI agents: mcp.spoznionepodroze.pl · /llms.txt · MCP (searchArticles, getDestinationInfo)",
+		"footer.ai": "for AI agents: /llms.txt",
 		"map.hint": "pan and zoom",
 		"map.read": "Read",
 		"map.label": "Travel map",

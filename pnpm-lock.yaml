@@ -249,9 +249,6 @@ importers:
       astro-portabletext:
         specifier: ^1.0.1
         version: 1.0.1(astro@7.4.2(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
-      class-variance-authority:
-        specifier: ^0.7.1
-        version: 0.7.1
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -5250,12 +5247,6 @@ packages:
     resolution:
       {
         integrity: sha512-lmNyBzi6iYiqyrExTctfmjd8tInx+dHu9PBomTfH5RXS53c27JMFJgzNv5TyAnm3PgGf+MLy0+Ws41/HlVxdKQ==,
-      }
-
-  class-variance-authority@0.7.1:
-    resolution:
-      {
-        integrity: sha512-Ka+9Trutv7G8M6WT6SeiRWz792K5qEqIGEGzXKhAE6xOWAY6pPH8U+9IY3oCMv6kqTmLsv7Xh/2w2RigkePMsg==,
       }
 
   clean-stack@3.0.1:
@@ -13656,10 +13647,6 @@ snapshots:
   ci-info@4.4.0: {}
 
   cjs-module-lexer@2.3.0: {}
-
-  class-variance-authority@0.7.1:
-    dependencies:
-      clsx: 2.1.1
 
   clean-stack@3.0.1:
     dependencies:

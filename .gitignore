@@ -1,10 +1,7 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
 # dependencies
-/node_modules
+node_modules/
 /.pnp
 .pnp.*
-
 
 # testing
 /coverage
@@ -15,26 +12,19 @@
 
 # debug
 .pnpm-debug.log*
-.vercel
 
 # typescript
 *.tsbuildinfo
 
 # build output
 dist/
+
 # generated types
 .astro/
 
-# dependencies
-node_modules/
-
-# logs
 # environment variables
 .env
 .env.production
-
-# macOS-specific files
-.DS_Store
 
 # jetbrains setting folder
 .idea/
