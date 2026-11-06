@@ -3,7 +3,8 @@ import { defineArrayMember, defineField, defineType } from "sanity";
 // Sanity extracts image metadata only at upload, and only the keys listed here.
 // Listing them replaces the defaults, so lqip/blurhash/palette must stay explicit.
 // exif + location (GPS) feed the map and lightbox captions later (LAN-163).
-const imageMetadata = ["blurhash", "lqip", "palette", "exif", "location"];
+const imageMetadata: ("blurhash" | "lqip" | "palette" | "exif" | "location")[] =
+	["blurhash", "lqip", "palette", "exif", "location"];
 
 export const post = defineType({
 	name: "post",

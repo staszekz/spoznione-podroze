@@ -3,8 +3,9 @@ import CollabBand from "@/components/CollabBand.astro";
 import ContinentPills from "@/components/ContinentPills.tsx";
 import FeaturedStories from "@/components/FeaturedStories.tsx";
 import Hero from "@/components/Hero.astro";
-import { SITE_DESCRIPTION } from "@/consts";
+import { SITE_DESCRIPTION, SITE_TITLE } from "@/consts";
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import { ogImageUrl } from "@/sanity/lib/image";
 import { getHomepageData } from "@/sanity/lib/queries";
 
 const lang = "pl" as const;
@@ -12,9 +13,26 @@ const data = await getHomepageData(lang);
 // getHomepageData sorts continents by postCount desc, so [0] is the default.
 const defaultId = data.continents[0]?._id;
 if (!defaultId) return Astro.redirect("/kontynenty");
+// Share image: the cover of the first (featured or newest) story.
+const cover = data.stories[0]?.coverImage;
+const shareImage = cover?.asset ? ogImageUrl(cover) : undefined;
+const jsonLd = {
+	"@context": "https://schema.org",
+	"@type": "WebSite",
+	name: SITE_TITLE,
+	description: SITE_DESCRIPTION.pl,
+	url: new URL("/", Astro.site).href,
+	inLanguage: lang,
+};
 ---
 
-<BaseLayout lang={lang} description={SITE_DESCRIPTION.pl} altHref="/en/">
+<BaseLayout
+	lang={lang}
+	description={SITE_DESCRIPTION.pl}
+	altHref="/en/"
+	image={shareImage}
+	jsonLd={jsonLd}
+>
 	<Hero
 		lang={lang}
 		continents={data.continents}
