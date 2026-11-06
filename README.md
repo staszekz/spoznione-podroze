@@ -1,63 +1,25 @@
-# Astro Starter Kit: Blog
+# Spóźnione Podróże
 
-```sh
-pnpm create astro@latest -- --template blog
-```
+Source of [spoznionepodroze.pl](https://spoznionepodroze.pl): a photo-centric PL/EN travel blog.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Stack
 
-Features:
+- [Astro](https://astro.build) (static output) with React islands and Tailwind CSS
+- [Sanity](https://www.sanity.io) as the CMS (content: continent → country → post, PL/EN translations)
+- Cloudflare Workers static assets for hosting (Workers Builds deploys `master`, PRs get preview URLs)
 
-- ✅ Minimal styling (make it your own!)
-- ✅ 100/100 Lighthouse performance
-- ✅ SEO-friendly with canonical URLs and Open Graph data
-- ✅ Sitemap support
-- ✅ RSS Feed support
-- ✅ Markdown & MDX support
+## Commands
 
-## 🚀 Project Structure
+Use Node 24 (`nvm use`).
 
-Inside of your Astro project, you'll see the following folders and files:
+| Command                                  | What it does                                   |
+| ---------------------------------------- | ---------------------------------------------- |
+| `pnpm install`                           | Install dependencies                           |
+| `pnpm dev`                               | Dev server at `localhost:4321`                 |
+| `pnpm build`                             | Build the site into `dist/`                    |
+| `pnpm run check`                         | Biome lint + format (writes fixes)             |
+| `pnpm astro check`                       | TypeScript and Astro type check                |
+| `pnpm preview:cf`                        | Build and serve with Wrangler, like production |
+| `pnpm studio:dev` / `pnpm studio:deploy` | Run or deploy Sanity Studio                    |
 
-```text
-├── public/
-├── src/
-│   ├── assets/
-│   ├── components/
-│   ├── content/
-│   ├── layouts/
-│   └── pages/
-├── astro.config.mjs
-├── README.md
-├── package.json
-└── tsconfig.json
-```
-
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-The `src/content/` directory contains "collections" of related Markdown and MDX documents. Use `getCollection()` to retrieve posts from `src/content/blog/`, and type-check your frontmatter using an optional schema. See [Astro's Content Collections docs](https://docs.astro.build/en/guides/content-collections/) to learn more.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                | Action                                           |
-| :--------------------- | :----------------------------------------------- |
-| `pnpm install`         | Installs dependencies                            |
-| `pnpm dev`             | Starts local dev server at `localhost:4321`      |
-| `pnpm build`           | Build your production site to `./dist/`          |
-| `pnpm preview`         | Preview your build locally, before deploying     |
-| `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `pnpm astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Check out [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
-
-## Credit
-
-This theme is based off of the lovely [Bear Blog](https://github.com/HermanMartinus/bearblog/).
+Agent and contributor notes: [AGENTS.md](AGENTS.md).
