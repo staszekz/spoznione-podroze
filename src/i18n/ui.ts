@@ -40,8 +40,9 @@ export const ui = {
 		"collab.lead": "Marki, wydawcy, kompani w drodze — chętnie porozmawiam.",
 		"collab.ctaAbout": "O mnie",
 		"collab.ctaCollab": "Współpraca",
-		"footer.meta": "Instagram · Newsletter · © 2026 · PL / EN",
+		"footer.meta": "© 2026 · PL / EN",
 		"footer.ai": "dla agentów AI: /llms.txt",
+		"footer.privacy": "Polityka prywatności",
 		"map.hint": "przesuń i przybliż",
 		"map.read": "Czytaj",
 		"map.label": "Mapa podróży",
@@ -92,8 +93,9 @@ export const ui = {
 		"collab.lead": "Brands, publishers, road companions — happy to talk.",
 		"collab.ctaAbout": "About me",
 		"collab.ctaCollab": "Work with me",
-		"footer.meta": "Instagram · Newsletter · © 2026 · PL / EN",
+		"footer.meta": "© 2026 · PL / EN",
 		"footer.ai": "for AI agents: /llms.txt",
+		"footer.privacy": "Privacy policy",
 		"map.hint": "pan and zoom",
 		"map.read": "Read",
 		"map.label": "Travel map",
@@ -141,6 +143,7 @@ export const routes = {
 		latest: "/najnowsze",
 		about: "/o-mnie",
 		collab: "/wspolpraca",
+		privacy: "/polityka-prywatnosci",
 	},
 	en: {
 		home: "/en/",
@@ -148,6 +151,7 @@ export const routes = {
 		latest: "/en/latest",
 		about: "/en/about",
 		collab: "/en/work-with-me",
+		privacy: "/en/privacy-policy",
 	},
 } as const;
 

@@ -5,3 +5,12 @@ export const SITE_DESCRIPTION = {
 } as const;
 /** Shown to search engines as the post author (JSON-LD). */
 export const AUTHOR_NAME = "Staszek";
+
+/**
+ * Data controller named in the privacy policy (GDPR art. 13).
+ * TODO(LAN-125): replace the placeholders before launch.
+ */
+export const PRIVACY_CONTROLLER = {
+	name: "[IMIĘ I NAZWISKO]",
+	email: "[EMAIL]",
+} as const;
