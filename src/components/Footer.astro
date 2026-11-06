@@ -1,13 +1,14 @@
 ---
 import { SITE_TITLE } from "@/consts";
 import type { Lang } from "@/i18n/ui";
-import { getTranslations } from "@/i18n/ui";
+import { getTranslations, routes } from "@/i18n/ui";
 
 interface Props {
 	lang: Lang;
 }
 
-const t = getTranslations(Astro.props.lang);
+const { lang } = Astro.props;
+const t = getTranslations(lang);
 ---
 
 <footer class="flex flex-col gap-2.5 border-t border-border py-7 pb-9">
@@ -19,7 +20,15 @@ const t = getTranslations(Astro.props.lang);
 			{t("footer.meta")}
 		</span>
 	</div>
-	<span class="font-mono text-[9px] text-faint-foreground md:text-[10px]">
-		{t("footer.ai")}
-	</span>
+	<div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+		<a
+			href={routes[lang].privacy}
+			class="font-mono text-[11px] text-subtle-foreground underline underline-offset-2 hover:text-foreground md:text-xs"
+		>
+			{t("footer.privacy")}
+		</a>
+		<span class="font-mono text-[9px] text-faint-foreground md:text-[10px]">
+			{t("footer.ai")}
+		</span>
+	</div>
 </footer>

@@ -1,0 +1,133 @@
+---
+import { PRIVACY_CONTROLLER } from "@/consts";
+import { routes, ui } from "@/i18n/ui";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+
+const lang = "en" as const;
+const { name, email } = PRIVACY_CONTROLLER;
+---
+
+<BaseLayout
+	lang={lang}
+	title={ui[lang]["footer.privacy"]}
+	description="What data the Spóźnione Podróże blog processes, why, and what your rights are."
+	altHref={routes.pl.privacy}
+>
+	<article
+		class="mx-auto flex w-full max-w-[720px] flex-col gap-6 py-10 md:py-14"
+	>
+		<header class="flex flex-col gap-2">
+			<h1
+				class="font-display text-4xl font-bold tracking-[-0.03em] md:text-5xl"
+			>
+				{ui[lang]["footer.privacy"]}
+			</h1>
+			<p class="text-sm text-muted-foreground">Last updated: 7 November 2026</p>
+		</header>
+
+		<div class="post-body">
+			<h2>In short</h2>
+			<p>
+				The blog has no user accounts, comments, newsletter or visitor
+				statistics, and it uses no cookies. Your data reaches me only when you
+				write to me. Your IP address is also seen by the technical providers the
+				site cannot be displayed without.
+			</p>
+
+			<h2>Data controller</h2>
+			<p>
+				The controller of personal data is {name}, author of the Spóźnione
+				Podróże blog. For anything related to your data, write to
+				<a href={`mailto:${email}`}>{email}</a>.
+			</p>
+
+			<h2>IP address and technical data</h2>
+			<p>
+				When you open the site, your browser connects to the servers of the
+				providers listed below. It sends them your IP address, browser details
+				and the address of the page you visit. The providers use this data to
+				deliver content, protect the site from attacks and diagnose errors. I
+				don't look through these logs or combine them with other data.
+			</p>
+			<p>
+				Legal basis: my legitimate interest in running the site smoothly and
+				securely (Article 6(1)(f) GDPR). Providers keep this data for the period
+				set in their own policies. Sharing your IP address is necessary for the
+				site to display.
+			</p>
+
+			<h2>Email</h2>
+			<p>
+				If you email me, I process your address and the content of your message
+				to reply. Legal basis: my legitimate interest in continuing the
+				conversation you start (Article 6(1)(f) GDPR). I keep messages for no
+				longer than 2 years after our last contact, unless you ask me to delete
+				them sooner. Writing to me is voluntary, but without your email address
+				I can't reply.
+			</p>
+
+			<h2>Providers that receive data</h2>
+			<ul>
+				<li>
+					<strong>Cloudflare, Inc.</strong>
+					hosts the site and delivers it through its server network. It receives
+					your IP address and technical data.
+				</li>
+				<li>
+					<strong>Sanity AS</strong>
+					is the system that stores the blog's content. It serves the photos
+					(cdn.sanity.io), so it receives your IP address when they load.
+				</li>
+				<li>
+					<strong>OpenFreeMap</strong>
+					provides the map on the homepage. It receives your IP address when the
+					map loads.
+				</li>
+				<li>
+					<strong>My email provider</strong>
+					stores the messages you send me.
+				</li>
+			</ul>
+			<p>
+				Some of these companies have servers outside the European Economic Area,
+				including in the USA. Such transfers rely on standard contractual
+				clauses approved by the European Commission or on certification under
+				the EU-US Data Privacy Framework.
+			</p>
+
+			<h2>Browser storage</h2>
+			<p>
+				The site stores just one piece of information in your browser's storage
+				(localStorage): whether you chose the light or dark theme. It never
+				leaves your device and cannot identify you. You can remove it by
+				clearing the site's data in your browser.
+			</p>
+
+			<h2>Your rights</h2>
+			<p>You have the right to:</p>
+			<ul>
+				<li>access your data and get a copy of it,</li>
+				<li>have your data corrected,</li>
+				<li>have your data deleted,</li>
+				<li>restrict processing,</li>
+				<li>object to processing based on legitimate interest,</li>
+				<li>
+					lodge a complaint with a supervisory authority; in Poland that is the
+					President of the Personal Data Protection Office (UODO), ul. Stawki 2,
+					00-193 Warsaw.
+				</li>
+			</ul>
+			<p>
+				To use these rights, write to <a href={`mailto:${email}`}>{email}</a>.
+				I'll reply within one month.
+			</p>
+
+			<h2>Changes</h2>
+			<p>
+				I'll update this policy when the blog gets new features, such as visitor
+				statistics or comments. The date of the latest change is at the top of
+				the page.
+			</p>
+		</div>
+	</article>
+</BaseLayout>

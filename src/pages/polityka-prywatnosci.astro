@@ -1,0 +1,137 @@
+---
+import { PRIVACY_CONTROLLER } from "@/consts";
+import { routes, ui } from "@/i18n/ui";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+
+const lang = "pl" as const;
+const { name, email } = PRIVACY_CONTROLLER;
+---
+
+<BaseLayout
+	lang={lang}
+	title={ui[lang]["footer.privacy"]}
+	description="Jakie dane przetwarza blog Spóźnione Podróże, po co i jakie masz prawa."
+	altHref={routes.en.privacy}
+>
+	<article
+		class="mx-auto flex w-full max-w-[720px] flex-col gap-6 py-10 md:py-14"
+	>
+		<header class="flex flex-col gap-2">
+			<h1
+				class="font-display text-4xl font-bold tracking-[-0.03em] md:text-5xl"
+			>
+				{ui[lang]["footer.privacy"]}
+			</h1>
+			<p class="text-sm text-muted-foreground">
+				Ostatnia aktualizacja: 7 listopada 2026
+			</p>
+		</header>
+
+		<div class="post-body">
+			<h2>W skrócie</h2>
+			<p>
+				Blog nie ma kont użytkowników, komentarzy, newslettera ani statystyk
+				odwiedzin i nie używa plików cookies. Twoje dane trafiają do mnie tylko
+				wtedy, gdy sam do mnie napiszesz. Twój adres IP widzą też dostawcy
+				techniczni, bez których strona nie mogłaby się wyświetlić.
+			</p>
+
+			<h2>Administrator danych</h2>
+			<p>
+				Administratorem danych osobowych jest {name}, autor bloga Spóźnione
+				Podróże. W każdej sprawie dotyczącej danych napisz na
+				<a href={`mailto:${email}`}>{email}</a>.
+			</p>
+
+			<h2>Adres IP i dane techniczne</h2>
+			<p>
+				Gdy otwierasz stronę, Twoja przeglądarka łączy się z serwerami dostawców
+				wymienionych niżej. Przekazuje im adres IP, informacje o przeglądarce i
+				adres odwiedzanej podstrony. Dostawcy używają tych danych, żeby
+				dostarczyć treść, chronić stronę przed atakami i diagnozować błędy. Sam
+				nie przeglądam tych logów i nie łączę ich z innymi danymi.
+			</p>
+			<p>
+				Podstawa prawna: mój prawnie uzasadniony interes, czyli sprawne i
+				bezpieczne działanie strony (art. 6 ust. 1 lit. f RODO). Dostawcy
+				przechowują te dane przez okres określony w ich własnych zasadach.
+				Przekazanie adresu IP jest niezbędne, żeby strona się wyświetliła.
+			</p>
+
+			<h2>Korespondencja</h2>
+			<p>
+				Jeśli napiszesz do mnie emailem, przetwarzam Twój adres i treść
+				wiadomości, żeby odpowiedzieć. Podstawa prawna: mój prawnie uzasadniony
+				interes, czyli prowadzenie rozmowy, którą zaczynasz (art. 6 ust. 1 lit.
+				f RODO). Wiadomości przechowuję nie dłużej niż 2 lata od ostatniego
+				kontaktu, chyba że wcześniej poprosisz o ich usunięcie. Kontakt jest
+				dobrowolny; bez adresu email nie mogę jednak odpowiedzieć.
+			</p>
+
+			<h2>Dostawcy, którzy otrzymują dane</h2>
+			<ul>
+				<li>
+					<strong>Cloudflare, Inc.</strong>
+					hostuje stronę i dostarcza ją przez swoją sieć serwerów. Otrzymuje
+					adres IP i dane techniczne.
+				</li>
+				<li>
+					<strong>Sanity AS</strong>
+					to system, w którym przechowuję treść bloga. Serwuje zdjęcia
+					(cdn.sanity.io), więc przy ich ładowaniu otrzymuje adres IP.
+				</li>
+				<li>
+					<strong>OpenFreeMap</strong>
+					dostarcza mapę na stronie głównej. Otrzymuje adres IP, gdy mapa się
+					ładuje.
+				</li>
+				<li>
+					<strong>Dostawca mojej skrzynki pocztowej</strong>
+					przechowuje wiadomości, które do mnie wysyłasz.
+				</li>
+			</ul>
+			<p>
+				Część tych firm ma serwery poza Europejskim Obszarem Gospodarczym, m.in.
+				w USA. Przekazanie danych odbywa się wtedy na podstawie standardowych
+				klauzul umownych zatwierdzonych przez Komisję Europejską albo
+				certyfikacji w programie EU-US Data Privacy Framework.
+			</p>
+
+			<h2>Pamięć przeglądarki</h2>
+			<p>
+				Strona zapisuje w pamięci Twojej przeglądarki (localStorage) tylko jedną
+				informację: czy wybrałeś jasny, czy ciemny motyw. Ta informacja nie
+				opuszcza Twojego urządzenia i nie pozwala Cię zidentyfikować. Możesz ją
+				usunąć, czyszcząc dane strony w przeglądarce.
+			</p>
+
+			<h2>Twoje prawa</h2>
+			<p>Masz prawo:</p>
+			<ul>
+				<li>dostępu do swoich danych i otrzymania ich kopii,</li>
+				<li>sprostowania danych,</li>
+				<li>usunięcia danych,</li>
+				<li>ograniczenia przetwarzania,</li>
+				<li>
+					sprzeciwu wobec przetwarzania opartego na prawnie uzasadnionym
+					interesie,
+				</li>
+				<li>
+					wniesienia skargi do Prezesa Urzędu Ochrony Danych Osobowych (ul.
+					Stawki 2, 00-193 Warszawa).
+				</li>
+			</ul>
+			<p>
+				Żeby skorzystać z tych praw, napisz na
+				<a href={`mailto:${email}`}>{email}</a>. Odpowiem w ciągu miesiąca.
+			</p>
+
+			<h2>Zmiany</h2>
+			<p>
+				Zaktualizuję tę politykę, gdy na blogu pojawią się nowe funkcje, np.
+				statystyki odwiedzin albo komentarze. Datę ostatniej zmiany znajdziesz
+				na górze strony.
+			</p>
+		</div>
+	</article>
+</BaseLayout>
