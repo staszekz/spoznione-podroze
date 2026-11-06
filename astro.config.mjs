@@ -6,6 +6,7 @@ import sanity from "@sanity/astro";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig, fontProviders } from "astro/config";
 import { loadEnv } from "vite";
+import { SANITY_DATASET, SANITY_PROJECT_ID } from "./src/sanity/env.ts";
 
 const { PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET } = loadEnv(
 	process.env.NODE_ENV ?? "development",
@@ -23,8 +24,8 @@ export default defineConfig({
 	integrations: [
 		sitemap(),
 		sanity({
-			projectId: PUBLIC_SANITY_PROJECT_ID,
-			dataset: PUBLIC_SANITY_DATASET,
+			projectId: PUBLIC_SANITY_PROJECT_ID || SANITY_PROJECT_ID,
+			dataset: PUBLIC_SANITY_DATASET || SANITY_DATASET,
 			useCdn: false,
 			apiVersion: "2026-07-01",
 		}),
