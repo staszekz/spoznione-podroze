@@ -1,7 +1,7 @@
 # Spóźnione Podróże
 
-> Foto-centryczny blog podróżniczy pisany z dystansu czasu (PL/EN).
-> A photo-centric travel blog written with the distance of time (PL/EN).
+> Foto-centryczny blog podróżniczy (PL/EN) w duchu „lepiej późno niż wcale”: spełniane po latach marzenie o podróżach i pisaniu. Nowe wyprawy i podróże z ostatnich lat mają równe miejsce.
+> A photo-centric travel blog (PL/EN) in the spirit of "better late than never": a long-postponed dream of travelling and writing, finally fulfilled. New trips and journeys from the past decade get equal space.
 
 Struktura treści / content hierarchy: kontynent → kraj → post.
 
