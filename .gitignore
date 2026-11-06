@@ -23,8 +23,8 @@ dist/
 .astro/
 
 # environment variables
-.env
-.env.production
+.env*
+!.env.example
 
 # jetbrains setting folder
 .idea/
