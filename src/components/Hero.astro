@@ -39,8 +39,7 @@ const t = getTranslations(lang);
 				href="#mapa"
 				class="inline-flex items-center gap-2 rounded-full bg-primary px-[26px] py-3.5 text-[15px] font-semibold text-primary-foreground transition-colors hover:bg-primary-dark"
 			>
-				{t("hero.ctaMap")}
-				→
+				{`${t("hero.ctaMap")} →`}
 			</a>
 			<a
 				href={routes[lang].latest}
@@ -51,16 +50,18 @@ const t = getTranslations(lang);
 		</div>
 	</div>
 
-	<div
+	<section
 		id="mapa"
+		aria-label={t("map.label")}
+		tabindex="-1"
 		class="relative h-[340px] overflow-hidden rounded-[18px] border border-border md:h-[460px] md:rounded-[22px]"
 	>
 		<HeroMap
-			client:only="react"
+			client:idle
 			continents={continents}
 			countries={countries}
 			defaultId={defaultId}
 			lang={lang}
 		/>
-	</div>
+	</section>
 </section>

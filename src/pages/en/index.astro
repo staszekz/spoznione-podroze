@@ -22,12 +22,12 @@ if (!defaultId) return Astro.redirect("/en/continents");
 		defaultId={defaultId}
 	/>
 	<ContinentPills
-		client:load
+		client:idle
 		continents={data.continents}
 		defaultId={defaultId}
 	/>
 	<FeaturedStories
-		client:load
+		client:idle
 		continents={data.continents}
 		stories={data.stories}
 		defaultId={defaultId}

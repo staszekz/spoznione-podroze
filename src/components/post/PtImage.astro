@@ -19,6 +19,7 @@ const height = dims ? Math.round((WIDTH * dims.height) / dims.width) : 960;
 			image={node}
 			width={WIDTH}
 			height={height}
+			sizes="(min-width: 760px) 720px, calc(100vw - 40px)"
 			className="h-auto rounded-[14px]"
 		/>
 		{node.caption && (
