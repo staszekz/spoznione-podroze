@@ -1,0 +1,151 @@
+---
+import { PortableText } from "astro-portabletext";
+import SanityImage from "@/components/SanityImage.tsx";
+import { SITE_DESCRIPTION } from "@/consts";
+import type { Lang } from "@/i18n/ui";
+import { routes, ui } from "@/i18n/ui";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { ogImageUrl, urlFor } from "@/sanity/lib/image";
+import { getAboutPage } from "@/sanity/lib/queries";
+import { socialLabel } from "@/sanity/socials";
+
+interface Props {
+	lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = ui[lang];
+const otherLang: Lang = lang === "pl" ? "en" : "pl";
+
+const page = await getAboutPage(lang);
+const authors = (page?.authors ?? []).filter(Boolean);
+const story = page?.story ?? [];
+const hasContent = story.length > 0 || authors.length > 0;
+
+const title = t["nav.about"];
+const description = page?.lead ?? SITE_DESCRIPTION[lang];
+const firstPhoto = authors.find((a) => a.photo?.asset)?.photo;
+const shareImage = firstPhoto ? ogImageUrl(firstPhoto) : undefined;
+
+const pageUrl = new URL(`${routes[lang].about}/`, Astro.site).href;
+// Same `url` as the post author in PostPage, so Google ties posts to this profile.
+const people = authors.map((a) => ({
+	"@type": "Person",
+	name: a.name,
+	url: pageUrl,
+	...(a.bio && { description: a.bio }),
+	...(a.photo?.asset && { image: urlFor(a.photo).width(600).url() }),
+	...(a.socials?.length && { sameAs: a.socials.map((s) => s.url) }),
+}));
+const jsonLd = {
+	"@context": "https://schema.org",
+	"@type": "AboutPage",
+	name: title,
+	description,
+	url: pageUrl,
+	inLanguage: lang,
+	...(people.length > 0 && {
+		mainEntity: people.length === 1 ? people[0] : people,
+	}),
+};
+---
+
+<BaseLayout
+	lang={lang}
+	title={title}
+	description={description}
+	altHref={routes[otherLang].about}
+	image={shareImage}
+	jsonLd={jsonLd}
+>
+	<article
+		class="mx-auto flex w-full max-w-[720px] flex-col gap-8 py-10 md:py-14"
+	>
+		<header class="flex flex-col gap-3">
+			<h1
+				class="font-display text-4xl font-bold tracking-[-0.03em] md:text-5xl"
+			>
+				{title}
+			</h1>
+			{page?.lead && (
+				<p class="text-lg leading-[1.55] text-muted-foreground">{page.lead}</p>
+			)}
+		</header>
+
+		{!hasContent && (
+			<p class="text-lg text-muted-foreground">{t["stub.wip"]}</p>
+		)}
+
+		{authors.map((author, index) => (
+			<section class="flex flex-col gap-5 rounded-2xl border border-border bg-card p-5 sm:flex-row sm:items-start md:p-6">
+				{author.photo?.asset && (
+					<div class="aspect-[4/5] w-40 shrink-0 overflow-hidden rounded-[12px]">
+						<SanityImage
+							image={author.photo}
+							width={320}
+							height={400}
+							sizes="160px"
+							loading={index === 0 ? "eager" : "lazy"}
+						/>
+					</div>
+				)}
+				<div class="flex min-w-0 flex-col gap-3 break-words">
+					<h2 class="font-display text-2xl font-bold tracking-[-0.02em]">
+						{author.name}
+					</h2>
+					{author.bio && (
+						<p class="whitespace-pre-line text-[15px] leading-[1.6]">
+							{author.bio}
+						</p>
+					)}
+					{author.socials && author.socials.length > 0 && (
+						<ul class="flex flex-wrap gap-x-4 gap-y-1 text-[15px] font-semibold">
+							{author.socials.map((social) => (
+								<li>
+									<a
+										href={social.url}
+										rel="me noopener"
+										target="_blank"
+										class="inline-block py-1 text-primary-dark hover:underline dark:text-primary"
+									>
+										{socialLabel(social.platform)}
+										<span class="sr-only">{t["link.newTab"]}</span>
+									</a>
+								</li>
+							))}
+						</ul>
+					)}
+				</div>
+			</section>
+		))}
+
+		{story.length > 0 && (
+			<div class="post-body">
+				<PortableText value={story} />
+			</div>
+		)}
+
+		{page?.email && (
+			<section
+				aria-labelledby="about-contact-title"
+				class="flex flex-col gap-2 border-t border-border pt-6"
+			>
+				<h2
+					id="about-contact-title"
+					class="font-display text-[28px] font-bold leading-[1.15] tracking-[-0.02em]"
+				>
+					{t["about.contact"]}
+				</h2>
+				<p class="text-[15px]">
+					{t["about.contactLead"]}{" "}
+					<a
+						href={`mailto:${page.email}`}
+						class="font-semibold text-primary-dark underline decoration-primary decoration-2 underline-offset-[3px] dark:text-primary"
+					>
+						{page.email}
+					</a>
+				</p>
+			</section>
+		)}
+	</article>
+</BaseLayout>

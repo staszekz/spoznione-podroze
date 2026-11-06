@@ -213,3 +213,44 @@ const LATEST_POSTS_QUERY = defineQuery(/* groq */ `
 export async function getLatestPosts(lang: Lang): Promise<LatestPost[]> {
 	return await sanityClient.fetch(LATEST_POSTS_QUERY, { lang });
 }
+
+export interface SocialLink {
+	_key: string;
+	platform: string;
+	url: string;
+}
+
+export interface AuthorProfile {
+	_id: string;
+	name: string;
+	bio: string | null;
+	photo: SanityImage | null;
+	socials: SocialLink[] | null;
+}
+
+export interface AboutPageData {
+	lead: string | null;
+	story: TypedObject[] | null;
+	email: string | null;
+	authors: AuthorProfile[] | null;
+}
+
+// Fixed id (see ABOUT_PAGE_ID): only the published singleton, never a stray copy.
+const ABOUT_PAGE_QUERY = defineQuery(/* groq */ `
+	*[_id == "aboutPage"][0] {
+		"lead": lead[$lang],
+		"story": story[$lang],
+		email,
+		"authors": authors[]->{
+			_id,
+			name,
+			"bio": bio[$lang],
+			photo { ${imageFragment} },
+			socials[] { _key, platform, url }
+		}
+	}
+`);
+
+export async function getAboutPage(lang: Lang): Promise<AboutPageData | null> {
+	return await sanityClient.fetch(ABOUT_PAGE_QUERY, { lang });
+}
