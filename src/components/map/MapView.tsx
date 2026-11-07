@@ -171,6 +171,14 @@ export default function MapView({
 			attributionControl: { compact: true },
 		});
 		mapRef.current = map;
+		// The canvas fills an overflow-hidden box, so an outer ring would be clipped.
+		map
+			.getCanvas()
+			.classList.add(
+				"focus-visible:outline-2",
+				"focus-visible:-outline-offset-2",
+				"focus-visible:outline-ring",
+			);
 
 		// Rebuilding swaps the marker elements; keep keyboard focus on the
 		// (new) active marker instead of letting it drop to <body>.
@@ -231,6 +239,16 @@ export default function MapView({
 		// event closed an open country popup.
 		const syncZoomLevel = () => {
 			const showCountries = map.getZoom() >= COUNTRY_ZOOM;
+			// Hiding a focused continent marker (e.g. after flyTo zooms in) would drop
+			// focus to <body>. The canvas stays visible and pans/zooms with the keyboard.
+			if (
+				showCountries &&
+				continentMarkersRef.current.some((marker) =>
+					marker.getElement().contains(document.activeElement),
+				)
+			) {
+				map.getCanvas().focus();
+			}
 			for (const marker of continentMarkersRef.current) {
 				marker.getElement().style.display = showCountries ? "none" : "";
 			}
@@ -240,17 +258,18 @@ export default function MapView({
 			}
 		};
 
-		// An error before the first `load` means the style or base tiles are
-		// unreachable (e.g. OpenFreeMap down): the canvas stays blank, so say so.
-		// If the map loads after all (a transient tile error), clear the message;
-		// later errors (single tiles) are ignored.
-		let loaded = false;
-		map.once("load", () => {
-			loaded = true;
+		// Until one basemap tile has loaded, any error (style, TileJSON, tiles)
+		// means a blank canvas, e.g. OpenFreeMap down: say so. `load` is no proof,
+		// because it also fires when every tile errored. Once a tile loads, the
+		// message clears, and later single-tile errors are ignored.
+		let tileLoaded = false;
+		map.on("sourcedata", (event) => {
+			if (!event.tile || tileLoaded) return;
+			tileLoaded = true;
 			setTilesFailed(false);
 		});
 		map.on("error", () => {
-			if (!loaded) setTilesFailed(true);
+			if (!tileLoaded) setTilesFailed(true);
 		});
 
 		buildContinentMarkers();
