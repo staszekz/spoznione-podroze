@@ -198,6 +198,20 @@ function formatMonthYear(lang: Lang, value: string, timeZone: string): string {
 const AUTHOR_TZ = "Europe/Warsaw";
 
 /**
+ * "14 maja 2026" for a `datetime` instant, in the author's time zone. Without
+ * it the build machine's zone (UTC on Cloudflare) decides, so a post published
+ * shortly after midnight in Poland would show the previous day.
+ */
+export function formatDate(lang: Lang, value: string): string {
+	return new Intl.DateTimeFormat(lang === "pl" ? "pl-PL" : "en-US", {
+		day: "numeric",
+		month: "long",
+		year: "numeric",
+		timeZone: AUTHOR_TZ,
+	}).format(new Date(value));
+}
+
+/**
  * "Podróż: wrzesień 2017. Opisana: listopad 2026." — the publish month is
  * dropped when the trip and the post share a year. Null without a trip date.
  */

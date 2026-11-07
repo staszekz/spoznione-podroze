@@ -13,8 +13,7 @@ const data = await getHomepageData(lang);
 // getHomepageData sorts continents by postCount desc, so [0] is the default.
 const defaultId = data.continents[0]?._id;
 if (!defaultId) return Astro.redirect("/en/continents");
-// Share image: the cover of the first (featured or newest) story.
-const cover = data.stories[0]?.coverImage;
+const cover = data.shareCover;
 const shareImage = cover?.asset ? ogImageUrl(cover) : undefined;
 const jsonLd = {
 	"@context": "https://schema.org",
