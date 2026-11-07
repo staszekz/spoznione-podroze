@@ -1,7 +1,14 @@
 import { useStore } from "@nanostores/react";
 import SanityImage from "@/components/SanityImage";
 import type { Lang } from "@/i18n/ui";
-import { postMeta, postPath, routes, tripYear, ui } from "@/i18n/ui";
+import {
+	continentPath,
+	postMeta,
+	postPath,
+	routes,
+	tripYear,
+	ui,
+} from "@/i18n/ui";
 import type { ContinentSummary, StoryCard } from "@/sanity/lib/queries";
 import { $activeContinent } from "@/stores/activeContinent";
 
@@ -34,22 +41,39 @@ export default function FeaturedStories({
 		.filter((s) => s.country?.continentId === selected)
 		.slice(0, 3);
 	const [main, ...side] = filtered;
+	// Continents without posts have no page of their own — fall back to the index.
+	const allHref =
+		continent?.slug && filtered.length > 0
+			? continentPath(lang, continent.slug)
+			: routes[lang].continents;
 
 	return (
 		<section className="flex flex-col gap-4 py-6 md:gap-[18px] md:py-7">
-			<div className="flex items-baseline justify-between">
+			<div className="flex items-baseline justify-between gap-3">
 				<h2 className="font-display text-[21px] font-bold tracking-[-0.01em] md:text-[26px]">
 					{continent?.name} · {ui[lang]["featured.heading"]}
 				</h2>
 				<a
-					href={routes[lang].continents}
-					className="text-[13px] font-semibold text-primary hover:text-primary-dark md:text-[15px]"
+					href={allHref}
+					className="-my-1.5 whitespace-nowrap py-1.5 text-[13px] font-semibold text-primary hover:text-primary-dark dark:hover:text-foreground md:text-[15px]"
 				>
 					{ui[lang]["featured.allCountries"]} →
 				</a>
 			</div>
 
-			<div className="grid gap-4 md:grid-cols-[1.5fr_1fr] md:gap-6">
+			{filtered.length === 0 && (
+				<div className="flex flex-col items-start gap-2 rounded-[18px] border border-border bg-card p-6 md:p-8">
+					<p className="text-muted-foreground">{ui[lang]["featured.empty"]}</p>
+					<a
+						href={routes[lang].latest}
+						className="font-semibold text-primary-dark hover:text-foreground dark:text-primary"
+					>
+						{ui[lang]["featured.emptyCta"]} <span aria-hidden="true">→</span>
+					</a>
+				</div>
+			)}
+
+			<div className="grid gap-4 md:gap-6 lg:grid-cols-[1.5fr_1fr]">
 				{main?.country && (
 					<a
 						href={postPath(lang, main.country.slug, main.slug)}

@@ -2,7 +2,7 @@
 import LanguageSwitch from "@/components/LanguageSwitch.astro";
 import MobileMenu from "@/components/MobileMenu.tsx";
 import ThemeToggle from "@/components/ThemeToggle.astro";
-import { SITE_TITLE } from "@/consts";
+import { COLLAB_PAGE_LIVE, SITE_TITLE } from "@/consts";
 import type { Lang } from "@/i18n/ui";
 import { getTranslations, localizePath, routes } from "@/i18n/ui";
 
@@ -19,14 +19,14 @@ const navItems = [
 	{ href: r.continents, label: t("nav.continents") },
 	{ href: r.latest, label: t("nav.latest") },
 	{ href: r.about, label: t("nav.about") },
-	{ href: r.collab, label: t("nav.collab") },
+	...(COLLAB_PAGE_LIVE ? [{ href: r.collab, label: t("nav.collab") }] : []),
 ];
 ---
 
-<header class="flex items-center justify-between py-4 md:py-[26px]">
+<header class="flex items-center justify-between gap-3 py-4 md:py-[26px]">
 	<a
 		href={localizePath(lang, "/")}
-		class="font-display text-lg font-extrabold tracking-[-0.02em] text-foreground md:text-[22px]"
+		class="-my-2 py-2 font-display text-base leading-[1.15] font-extrabold tracking-[-0.02em] text-foreground sm:text-lg md:text-[22px]"
 	>
 		{SITE_TITLE}
 	</a>
@@ -42,7 +42,7 @@ const navItems = [
 		))}
 	</nav>
 
-	<div class="flex items-center gap-2.5">
+	<div class="flex flex-none items-center gap-2 sm:gap-2.5">
 		<LanguageSwitch lang={lang} altHref={altHref} />
 		<ThemeToggle lang={lang} />
 		<div class="md:hidden">

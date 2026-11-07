@@ -8,9 +8,16 @@ interface Props {
 
 const { node } = Astro.props;
 const WIDTH = 1440;
-// Keep the photo's own aspect ratio instead of cropping inline images.
+// Keep the aspect ratio of what the author picked: the original minus the
+// Studio crop. Using the uncropped ratio made the builder crop a second time.
 const dims = node.asset?.metadata?.dimensions;
-const height = dims ? Math.round((WIDTH * dims.height) / dims.width) : 960;
+const crop = node.crop;
+const height = dims
+	? Math.round(
+			(WIDTH * dims.height * (1 - (crop?.top ?? 0) - (crop?.bottom ?? 0))) /
+				(dims.width * (1 - (crop?.left ?? 0) - (crop?.right ?? 0))),
+		)
+	: 960;
 ---
 
 {node.asset && (

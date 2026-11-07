@@ -15,7 +15,9 @@ Manage the background server with `astro dev stop`, `astro dev status`, and `ast
 
 ## Sanity
 
-Studio is embedded at `/studio`. Schema lives in `src/sanity/schemaTypes/` and is deployed
+Studio is deployed standalone at https://spoznione-podroze.sanity.studio/ (`pnpm studio:deploy`,
+`studioHost` in `sanity.cli.ts`); it is not embedded in the Astro site, so there is no `/studio`
+route and no `studioBasePath`. Schema lives in `src/sanity/schemaTypes/` and is deployed
 from that source via `sanity schema deploy` (Studio-managed — do not deploy via the MCP
 `deploy_schema` tool, which would diverge). Content: `continent` -> `country` -> `post`,
 with document-level PL/EN translations on `post`.

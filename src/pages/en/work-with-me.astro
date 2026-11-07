@@ -1,5 +1,11 @@
 ---
 import StubPage from "@/components/StubPage.astro";
+import { COLLAB_PAGE_LIVE } from "@/consts";
 ---
 
-<StubPage lang="en" title="Work with me" altHref="/wspolpraca" />
+<StubPage
+	lang="en"
+	title="Work with me"
+	altHref="/wspolpraca"
+	noindex={!COLLAB_PAGE_LIVE}
+/>

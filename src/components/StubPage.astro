@@ -7,13 +7,20 @@ interface Props {
 	lang: Lang;
 	title: string;
 	altHref: string;
+	noindex?: boolean;
 }
 
-const { lang, title, altHref } = Astro.props;
+const { lang, title, altHref, noindex } = Astro.props;
 const t = getTranslations(lang);
 ---
 
-<BaseLayout lang={lang} title={title} description={title} altHref={altHref}>
+<BaseLayout
+	lang={lang}
+	title={title}
+	description={title}
+	altHref={altHref}
+	noindex={noindex}
+>
 	<div class="flex flex-col gap-4 py-16 md:py-24">
 		<h1 class="font-display text-4xl font-bold tracking-[-0.03em] md:text-5xl">
 			{title}

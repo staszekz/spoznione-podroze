@@ -1,0 +1,31 @@
+---
+import type { MarkProps } from "astro-portabletext/types";
+
+export type Props = MarkProps<{ href?: string }>;
+
+const { node, index, isInline, ...attrs } = Astro.props;
+const href = node.markDef.href ?? "";
+
+// Content comes from the CMS (and from API imports that skip Studio
+// validation): render only web, mail and phone links, never `javascript:`.
+// Relative paths resolve against the dummy base and pass as https.
+const SAFE_PROTOCOLS = new Set(["http:", "https:", "mailto:", "tel:"]);
+let safe = false;
+try {
+	safe =
+		href.trim() !== "" &&
+		SAFE_PROTOCOLS.has(new URL(href, "https://base.invalid").protocol);
+} catch {
+	safe = false;
+}
+---
+
+{safe ? (
+	<a href={href} {...attrs}>
+		<slot />
+	</a>
+) : (
+	<span {...attrs}>
+		<slot />
+	</span>
+)}

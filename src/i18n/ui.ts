@@ -22,6 +22,8 @@ export const ui = {
 		"featured.heading": "wybrane historie",
 		"featured.allCountries": "Wszystkie kraje",
 		"featured.readingMeta": "min",
+		"featured.empty": "Z tego kontynentu nie ma jeszcze wpisów.",
+		"featured.emptyCta": "Zobacz najnowsze historie",
 		"post.trip": "Podróż",
 		"post.written": "Opisana",
 		"post.updated": "Zaktualizowano",
@@ -35,9 +37,15 @@ export const ui = {
 		"latest.title": "Najnowsze",
 		"latest.lead": "Wszystkie historie po kolei — od najnowszej.",
 		"latest.empty": "Nie ma jeszcze żadnych wpisów.",
+		"continents.title": "Kontynenty",
+		"continents.lead":
+			"Wybierz kontynent i przejrzyj historie z kolejnych krajów.",
+		"continents.back": "Wszystkie kontynenty",
 		"collab.eyebrow": "O MNIE · WSPÓŁPRACA",
 		"collab.title": "Poznajmy się — albo zróbmy coś razem",
 		"collab.lead": "Marki, wydawcy, kompani w drodze — chętnie porozmawiam.",
+		"collab.eyebrowAboutOnly": "O MNIE",
+		"collab.titleAboutOnly": "Poznajmy się",
 		"collab.ctaAbout": "O mnie",
 		"collab.ctaCollab": "Współpraca",
 		"footer.meta": "© 2026 · PL / EN",
@@ -49,6 +57,8 @@ export const ui = {
 		"map.show": "Pokaż mapę",
 		"map.loading": "Ładuję mapę…",
 		"map.error": "Nie udało się wczytać mapy.",
+		"map.tilesError": "Podkład mapy jest chwilowo niedostępny.",
+		"map.tilesErrorCta": "Przeglądaj kontynenty",
 		"map.retry": "Odśwież",
 		"theme.toggle": "Przełącz motyw",
 		"menu.open": "Otwórz menu",
@@ -75,6 +85,8 @@ export const ui = {
 		"featured.heading": "selected stories",
 		"featured.allCountries": "All countries",
 		"featured.readingMeta": "min",
+		"featured.empty": "No stories from this continent yet.",
+		"featured.emptyCta": "See the latest stories",
 		"post.trip": "Trip",
 		"post.written": "Written",
 		"post.updated": "Updated",
@@ -88,9 +100,15 @@ export const ui = {
 		"latest.title": "Latest",
 		"latest.lead": "Every story in order — newest first.",
 		"latest.empty": "No posts yet.",
+		"continents.title": "Continents",
+		"continents.lead":
+			"Pick a continent and browse the stories country by country.",
+		"continents.back": "All continents",
 		"collab.eyebrow": "ABOUT · COLLABORATION",
 		"collab.title": "Let's meet — or make something together",
 		"collab.lead": "Brands, publishers, road companions — happy to talk.",
+		"collab.eyebrowAboutOnly": "ABOUT",
+		"collab.titleAboutOnly": "Let's meet",
 		"collab.ctaAbout": "About me",
 		"collab.ctaCollab": "Work with me",
 		"footer.meta": "© 2026 · PL / EN",
@@ -102,6 +120,8 @@ export const ui = {
 		"map.show": "Show the map",
 		"map.loading": "Loading the map…",
 		"map.error": "The map didn't load.",
+		"map.tilesError": "The map background is unavailable right now.",
+		"map.tilesErrorCta": "Browse continents",
 		"map.retry": "Reload",
 		"theme.toggle": "Toggle theme",
 		"menu.open": "Open menu",
@@ -171,6 +191,11 @@ export function postMeta(
 		.join(" · ");
 }
 
+/** Builds the URL of a continent page: `/kontynenty/{slug}` (EN: `/en/continents/{slug}`). */
+export function continentPath(lang: Lang, continentSlug: string): string {
+	return `${routes[lang].continents}/${continentSlug}`;
+}
+
 /** Builds the URL of a post page: `/{countrySlug}/{postSlug}` (EN under `/en/`). */
 export function postPath(
 	lang: Lang,
@@ -230,15 +255,39 @@ export function updatedLine(
 	return `${line} ${/[.!?…]$/.test(note) ? note : `${note}.`}`;
 }
 
-const photoWords: Record<Lang, Partial<Record<Intl.LDMLPluralRule, string>>> = {
+type PluralWords = Record<Lang, Partial<Record<Intl.LDMLPluralRule, string>>>;
+
+const photoWords: PluralWords = {
 	pl: { one: "zdjęcie", few: "zdjęcia", many: "zdjęć", other: "zdjęcia" },
 	en: { one: "photo", other: "photos" },
 };
 
+function pluralText(words: PluralWords, lang: Lang, count: number): string {
+	const rule = new Intl.PluralRules(lang).select(count);
+	return `${count} ${words[lang][rule] ?? words[lang].other}`;
+}
+
 /** "1 zdjęcie", "24 zdjęcia", "48 zdjęć" — Polish has three plural forms. */
 function photosText(lang: Lang, count: number): string {
-	const rule = new Intl.PluralRules(lang).select(count);
-	return `${count} ${photoWords[lang][rule] ?? photoWords[lang].other}`;
+	return pluralText(photoWords, lang, count);
+}
+
+const countryWords: PluralWords = {
+	pl: { one: "kraj", few: "kraje", many: "krajów", other: "kraju" },
+	en: { one: "country", other: "countries" },
+};
+const storyWords: PluralWords = {
+	pl: { one: "historia", few: "historie", many: "historii", other: "historii" },
+	en: { one: "story", other: "stories" },
+};
+
+/** "3 kraje · 12 historii" — continent card meta. */
+export function continentMeta(
+	lang: Lang,
+	countryCount: number,
+	postCount: number,
+): string {
+	return `${pluralText(countryWords, lang, countryCount)} · ${pluralText(storyWords, lang, postCount)}`;
 }
 
 /** "8 min czytania, 24 zdjęcia." — plain-sentence post meta with plural forms; null when both are missing. */

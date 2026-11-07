@@ -1,5 +1,6 @@
 ---
 import { PortableText } from "astro-portabletext";
+import PtLink from "@/components/PtLink.astro";
 import SanityImage from "@/components/SanityImage.tsx";
 import { SITE_DESCRIPTION } from "@/consts";
 import type { Lang } from "@/i18n/ui";
@@ -121,7 +122,7 @@ const jsonLd = {
 
 		{story.length > 0 && (
 			<div class="post-body">
-				<PortableText value={story} />
+				<PortableText value={story} components={{ mark: { link: PtLink } }} />
 			</div>
 		)}
 

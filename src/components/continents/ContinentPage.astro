@@ -1,0 +1,75 @@
+---
+import PostCard from "@/components/PostCard.astro";
+import type { Lang } from "@/i18n/ui";
+import { continentMeta, getTranslations, routes } from "@/i18n/ui";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import type { ContinentListItem, LatestPost } from "@/sanity/lib/queries";
+import { getContinentPosts } from "@/sanity/lib/queries";
+
+interface Props {
+	lang: Lang;
+	continent: ContinentListItem;
+	altHref: string | undefined;
+}
+
+const { lang, continent, altHref } = Astro.props;
+const t = getTranslations(lang);
+const posts = await getContinentPosts(lang, continent._id);
+
+// The query sorts by country name, so posts of one country are adjacent.
+const byCountry = new Map<string, { name: string; posts: LatestPost[] }>();
+for (const post of posts) {
+	const group = byCountry.get(post.country.slug);
+	if (group) group.posts.push(post);
+	else
+		byCountry.set(post.country.slug, {
+			name: post.country.name,
+			posts: [post],
+		});
+}
+---
+
+<BaseLayout
+	lang={lang}
+	title={continent.name}
+	description={`${continent.name} — ${continentMeta(lang, continent.countryCount, continent.postCount)}`}
+	altHref={altHref}
+>
+	<section class="flex flex-col gap-8 py-10 md:gap-10 md:py-14">
+		<div class="flex flex-col gap-2">
+			<a
+				href={routes[lang].continents}
+				class="-my-1.5 self-start py-1.5 text-sm font-semibold text-primary-dark hover:text-foreground dark:text-primary"
+			>
+				<span aria-hidden="true">←</span> {t("continents.back")}
+			</a>
+			<h1
+				class="font-display text-4xl font-bold tracking-[-0.03em] md:text-5xl"
+			>
+				{continent.name}
+			</h1>
+			<p class="font-mono text-xs text-subtle-foreground">
+				{continentMeta(lang, continent.countryCount, continent.postCount)}
+			</p>
+		</div>
+
+		{[...byCountry].map(([slug, group]) => (
+			<section
+				class="flex flex-col gap-4 md:gap-5"
+				aria-labelledby={`country-${slug}`}
+			>
+				<h2
+					id={`country-${slug}`}
+					class="font-display text-2xl font-bold tracking-[-0.01em] md:text-[28px]"
+				>
+					{group.name}
+				</h2>
+				<div class="grid gap-4 sm:grid-cols-2 md:gap-6 lg:grid-cols-3">
+					{group.posts.map((post) => (
+						<PostCard lang={lang} post={post} />
+					))}
+				</div>
+			</section>
+		))}
+	</section>
+</BaseLayout>

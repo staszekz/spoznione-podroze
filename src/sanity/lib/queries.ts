@@ -41,7 +41,8 @@ export interface SanityImage {
 		};
 	} | null;
 	hotspot?: unknown;
-	crop?: unknown;
+	/** Fractions (0–1) cut off each edge in the Studio crop tool. */
+	crop?: { top: number; bottom: number; left: number; right: number } | null;
 	alt?: string | null;
 }
 
@@ -253,4 +254,65 @@ const ABOUT_PAGE_QUERY = defineQuery(/* groq */ `
 
 export async function getAboutPage(lang: Lang): Promise<AboutPageData | null> {
 	return await sanityClient.fetch(ABOUT_PAGE_QUERY, { lang });
+}
+
+export interface ContinentListItem {
+	_id: string;
+	name: string;
+	slug: string;
+	/** Slugs in both languages, for the language switch on the continent page. */
+	slugs: { pl: string | null; en: string | null };
+	image: SanityImage | null;
+	countryCount: number;
+	postCount: number;
+}
+
+// Continents without a post in this language are left out: their page would be empty.
+const CONTINENTS_QUERY = defineQuery(/* groq */ `
+	*[_type == "continent" && defined(slug[$lang].current)] {
+		_id,
+		"name": name[$lang],
+		"slug": slug[$lang].current,
+		"slugs": { "pl": slug.pl.current, "en": slug.en.current },
+		image { ${imageFragment} },
+		"countryCount": count(*[_type == "country" && continent._ref == ^._id
+			&& defined(slug[$lang].current)
+			&& count(*[_type == "post" && language == $lang && defined(slug.current)
+				&& country._ref == ^._id]) > 0]),
+		"postCount": count(*[_type == "post" && language == $lang && defined(slug.current)
+			&& defined(country->slug[$lang].current) && country->continent._ref == ^._id])
+	}[postCount > 0]
+`);
+
+export async function getContinents(lang: Lang): Promise<ContinentListItem[]> {
+	const continents: ContinentListItem[] = await sanityClient.fetch(
+		CONTINENTS_QUERY,
+		{ lang },
+	);
+	// Alphabetical in the page language (GROQ would compare code points).
+	return continents.sort((a, b) => a.name.localeCompare(b.name, lang));
+}
+
+const CONTINENT_POSTS_QUERY = defineQuery(/* groq */ `
+	*[_type == "post" && language == $lang && defined(slug.current)
+		&& defined(country->slug[$lang].current) && country->continent._ref == $continentId]
+		| order(publishedAt desc) {
+		${postCardFragment}
+	}
+`);
+
+/** Posts of one continent, sorted by country name, then newest first. */
+export async function getContinentPosts(
+	lang: Lang,
+	continentId: string,
+): Promise<LatestPost[]> {
+	const posts: LatestPost[] = await sanityClient.fetch(CONTINENT_POSTS_QUERY, {
+		lang,
+		continentId,
+	});
+	// GROQ compares code points ("Łotwa" after "Zambia"); the stable JS sort
+	// orders countries by the language's alphabet and keeps newest-first within.
+	return posts.sort((a, b) =>
+		a.country.name.localeCompare(b.country.name, lang),
+	);
 }
