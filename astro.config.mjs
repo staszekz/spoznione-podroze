@@ -7,6 +7,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig, fontProviders } from "astro/config";
 import { loadEnv } from "vite";
 import { COLLAB_PAGE_LIVE } from "./src/consts.ts";
+import { inSitemap } from "./src/lib/hidden-pages.ts";
 import { SANITY_DATASET, SANITY_PROJECT_ID } from "./src/sanity/env.ts";
 
 const { PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET } = loadEnv(
@@ -25,9 +26,7 @@ export default defineConfig({
 	integrations: [
 		sitemap({
 			// Hidden pages stay reachable by URL but out of search (see consts.ts).
-			filter: (page) =>
-				COLLAB_PAGE_LIVE ||
-				!/^https?:\/\/[^/]+\/(wspolpraca|en\/work-with-me)\/?$/.test(page),
+			filter: (page) => inSitemap(page, COLLAB_PAGE_LIVE),
 		}),
 		sanity({
 			projectId: PUBLIC_SANITY_PROJECT_ID || SANITY_PROJECT_ID,

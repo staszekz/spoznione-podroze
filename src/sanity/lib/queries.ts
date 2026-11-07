@@ -2,6 +2,7 @@ import { sanityClient } from "sanity:client";
 import type { TypedObject } from "astro-portabletext/types";
 import { defineQuery } from "groq";
 import type { Lang } from "@/i18n/ui";
+import type { Crop } from "@/lib/crop";
 
 const imageFragment = /* groq */ `
 	asset->{
@@ -41,8 +42,7 @@ export interface SanityImage {
 		};
 	} | null;
 	hotspot?: unknown;
-	/** Fractions (0–1) cut off each edge in the Studio crop tool. */
-	crop?: { top: number; bottom: number; left: number; right: number } | null;
+	crop?: Crop | null;
 	alt?: string | null;
 }
 
