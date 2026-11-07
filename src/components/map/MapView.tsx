@@ -169,6 +169,11 @@ export default function MapView({
 			minZoom: 0.2,
 			maxZoom: 8,
 			attributionControl: { compact: true },
+			// MapLibre's own UI strings default to English (canvas reads "Map, region").
+			locale: {
+				"Map.Title": ui[lang]["map.canvasLabel"],
+				"AttributionControl.ToggleAttribution": ui[lang]["map.attribution"],
+			},
 		});
 		mapRef.current = map;
 		// The canvas fills an overflow-hidden box, so an outer ring would be clipped.
@@ -315,7 +320,7 @@ export default function MapView({
 			<div className="absolute right-3.5 top-3.5 z-10 flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-[0_4px_14px_rgba(31,27,22,0.07)]">
 				<button
 					type="button"
-					aria-label="+"
+					aria-label={ui[lang]["map.zoomIn"]}
 					onClick={() => mapRef.current?.zoomIn()}
 					className="flex size-9 cursor-pointer items-center justify-center border-b border-border text-card-foreground hover:bg-muted"
 				>
@@ -323,7 +328,7 @@ export default function MapView({
 				</button>
 				<button
 					type="button"
-					aria-label="−"
+					aria-label={ui[lang]["map.zoomOut"]}
 					onClick={() => mapRef.current?.zoomOut()}
 					className="flex size-9 cursor-pointer items-center justify-center text-card-foreground hover:bg-muted"
 				>
