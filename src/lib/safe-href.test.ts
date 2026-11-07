@@ -35,4 +35,11 @@ describe("isSafeHref: which CMS links may become <a href>", () => {
 		expect(isSafeHref("")).toBe(false);
 		expect(isSafeHref("   ")).toBe(false);
 	});
+
+	it.each([123, {}, null, undefined])(
+		"renders a malformed API-imported href as text instead of failing the build: %j",
+		(href) => {
+			expect(isSafeHref(href)).toBe(false);
+		},
+	);
 });

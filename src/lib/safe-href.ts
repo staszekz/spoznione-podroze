@@ -7,9 +7,11 @@ const SAFE_PROTOCOLS = new Set(["http:", "https:", "mailto:", "tel:"]);
  * `URL` normalises the scheme like a browser does (case, leading spaces,
  * tabs), so `" JavaScript:"` is caught. Relative paths resolve against the
  * dummy base and pass as https. Empty hrefs would link to the current page.
+ * Takes `unknown`: API imports can store a number or object, and a throw here
+ * would abort the static build of the whole page.
  */
-export function isSafeHref(href: string): boolean {
-	if (href.trim() === "") return false;
+export function isSafeHref(href: unknown): href is string {
+	if (typeof href !== "string" || href.trim() === "") return false;
 	try {
 		return SAFE_PROTOCOLS.has(new URL(href, "https://base.invalid").protocol);
 	} catch {

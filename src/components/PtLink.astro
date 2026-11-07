@@ -5,7 +5,7 @@ import { isSafeHref } from "@/lib/safe-href";
 export type Props = MarkProps<{ href?: string }>;
 
 const { node, index, isInline, ...attrs } = Astro.props;
-const href = node.markDef.href ?? "";
+const href: unknown = node.markDef.href;
 const safe = isSafeHref(href);
 ---
 
