@@ -2,8 +2,7 @@
 // see, not the Cloudflare configuration. Runs on Node 24 without a build step.
 // Usage and flags: see USAGE below, or `pnpm smoke --help`.
 
-// A module, so top-level await type-checks (the file has no imports).
-export {};
+import { canonical, hasNoindex, xmlError } from "./smoke-checks.ts";
 
 const USAGE = `Usage: pnpm smoke <base-url> [--production | --preview]
 
@@ -15,7 +14,8 @@ Always checked:
   /, /en/                 200 with the blog title
   /sitemap-index.xml      200, child sitemaps 200
   one PL and one EN post  200, URLs taken from the sitemap, page is a BlogPosting
-  /rss.xml, /en/rss.xml   RSS XML whose items link only to posts in the sitemap
+  /rss.xml, /en/rss.xml   well-formed RSS whose items link only to same-language
+                          posts in the sitemap (same origin); sitemaps well-formed
   a missing path          404 with the blog's 404 page
   headers                 HSTS, nosniff, Referrer-Policy; HTML not cached as
                           immutable; a hashed /_astro/ asset cached as immutable
@@ -112,9 +112,8 @@ function expectStatus(page: Page, expected: number): boolean {
 	);
 }
 
-/** Paths compare with a trailing slash, as Astro builds them. */
-function pathOf(href: string): string {
-	return new URL(href, base).pathname.replace(/\/?$/, "/");
+function pathOf(url: string): string {
+	return new URL(url).pathname;
 }
 
 /** The sitemap points at the canonical domain: rebase it on the tested host. */
@@ -127,8 +126,8 @@ function locs(xml: string): string[] {
 	return [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(([, loc]) => loc.trim());
 }
 
-function isPostPath(path: string, lang: Lang): boolean {
-	const segments = path.split("/").filter(Boolean);
+function isPostUrl(url: string, lang: Lang): boolean {
+	const segments = pathOf(url).split("/").filter(Boolean);
 	if (lang === "en") {
 		return (
 			segments.length === 3 &&
@@ -155,18 +154,25 @@ async function checkHomepage(path: string): Promise<Page | null> {
 	return page;
 }
 
-async function sitemapPaths(): Promise<string[]> {
+function checkXml(page: Page, label: string): boolean {
+	const error = xmlError(page.body);
+	return check(!error, `${label} is well-formed XML`, error ?? "");
+}
+
+/** Absolute sitemap URLs as listed (canonical origin), trailing slash added. */
+async function sitemapUrls(): Promise<string[]> {
 	const index = await fetchPage("/sitemap-index.xml");
 	if (!index || !expectStatus(index, 200)) return [];
-	const paths: string[] = [];
+	if (!checkXml(index, "/sitemap-index.xml")) return [];
+	const urls: string[] = [];
 	for (const loc of locs(index.body)) {
 		const sitemap = await fetchPage(onBase(loc));
-		if (sitemap && expectStatus(sitemap, 200)) {
-			paths.push(...locs(sitemap.body).map(pathOf));
+		if (sitemap && expectStatus(sitemap, 200) && checkXml(sitemap, loc)) {
+			urls.push(...locs(sitemap.body).map((url) => canonical(url, base)));
 		}
 	}
-	check(paths.length > 0, "sitemap lists pages", "no <loc> entries found");
-	return paths;
+	check(urls.length > 0, "sitemap lists pages", "no <loc> entries found");
+	return urls;
 }
 
 async function checkPost(posts: string[], lang: Lang): Promise<Page | null> {
@@ -180,11 +186,11 @@ async function checkPost(posts: string[], lang: Lang): Promise<Page | null> {
 	) {
 		return null;
 	}
-	const page = await fetchPage(posts[0]);
+	const page = await fetchPage(onBase(posts[0]));
 	if (page && expectStatus(page, 200)) {
 		check(
 			/"@type":\s*"BlogPosting"/.test(page.body),
-			`${posts[0]} is a post page`,
+			`${pathOf(posts[0])} is a post page`,
 			"no BlogPosting JSON-LD in the HTML",
 		);
 	}
@@ -197,13 +203,16 @@ async function checkFeed(path: string, posts: Set<string>, lang: Lang) {
 	const type = feed.headers.get("content-type") ?? "";
 	check(
 		type.includes("xml") && /<rss[\s>]/.test(feed.body),
-		`${path} is RSS XML`,
+		`${path} is RSS`,
 		`content-type "${type}", <rss> ${/<rss[\s>]/.test(feed.body) ? "found" : "missing"}`,
 	);
+	// A feed reader rejects the whole feed on one parse error: links mean nothing then.
+	if (!checkXml(feed, path)) return;
+	// Absolute links, origin kept: a post path on the wrong host is still broken.
 	const links = [
 		...feed.body.matchAll(/<item>[\s\S]*?<link>([^<]+)<\/link>/g),
-	].map(([, link]) => pathOf(link.trim()));
-	const langPosts = [...posts].filter((post) => isPostPath(post, lang));
+	].map(([, link]) => canonical(link.trim(), feed.url));
+	const langPosts = [...posts].filter((post) => isPostUrl(post, lang));
 	check(
 		links.length > 0 || langPosts.length === 0,
 		`${path} has items`,
@@ -218,8 +227,8 @@ async function checkFeed(path: string, posts: Set<string>, lang: Lang) {
 		`not a ${lang.toUpperCase()} post in the sitemap: ${missing.join(", ")}`,
 	);
 	// The sitemap comes from the same build, so also load one linked page.
-	if (links.length > 0) {
-		const first = await fetchPage(links[0]);
+	if (links.length > 0 && missing.length === 0) {
+		const first = await fetchPage(onBase(links[0]));
 		if (first) expectStatus(first, 200);
 	}
 }
@@ -284,13 +293,6 @@ async function checkAssetCache(home: Page) {
 	}
 }
 
-function hasNoindex(page: Page): boolean {
-	return (
-		(page.headers.get("x-robots-tag") ?? "").includes("noindex") ||
-		/<meta name="robots" content="[^"]*noindex/.test(page.body)
-	);
-}
-
 async function expectRedirect(
 	from: URL,
 	statuses: number[],
@@ -340,16 +342,16 @@ console.log(
 
 const home = await checkHomepage("/");
 const homeEn = await checkHomepage("/en/");
-const paths = await sitemapPaths();
+const urls = await sitemapUrls();
 const posts = new Set(
-	paths.filter((path) => isPostPath(path, "pl") || isPostPath(path, "en")),
+	urls.filter((url) => isPostUrl(url, "pl") || isPostUrl(url, "en")),
 );
 const postPl = await checkPost(
-	paths.filter((path) => isPostPath(path, "pl")),
+	urls.filter((url) => isPostUrl(url, "pl")),
 	"pl",
 );
 const postEn = await checkPost(
-	paths.filter((path) => isPostPath(path, "en")),
+	urls.filter((url) => isPostUrl(url, "en")),
 	"en",
 );
 await checkFeed("/rss.xml", posts, "pl");
@@ -366,13 +368,17 @@ const indexable = [home, homeEn, postPl, postEn].filter(
 if (production) {
 	await checkProductionRedirects();
 	for (const page of indexable) {
-		check(!hasNoindex(page), `${page.url} is indexable`, "noindex found");
+		check(
+			!hasNoindex(page.headers.get("x-robots-tag"), page.body),
+			`${page.url} is indexable`,
+			"noindex in X-Robots-Tag or a robots meta tag",
+		);
 	}
 }
 if (preview) {
 	for (const page of indexable) {
 		check(
-			(page.headers.get("x-robots-tag") ?? "").includes("noindex"),
+			hasNoindex(page.headers.get("x-robots-tag"), ""),
 			`${page.url} sends X-Robots-Tag: noindex`,
 			`X-Robots-Tag: "${page.headers.get("x-robots-tag")}"`,
 		);
