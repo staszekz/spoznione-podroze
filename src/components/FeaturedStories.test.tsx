@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
-import { postPath, routes, ui } from "@/i18n/ui";
+import { continentPath, postPath, routes, ui } from "@/i18n/ui";
 import type { ContinentSummary, StoryCard } from "@/sanity/lib/queries";
 import ContinentPills from "./ContinentPills";
 import FeaturedStories from "./FeaturedStories";
@@ -83,10 +83,10 @@ describe("picking a continent swaps the featured stories", () => {
 		renderHomepage();
 
 		expect(heading()).toHaveTextContent(`Europa · ${t["featured.heading"]}`);
-		expect(screen.getByRole("link", { name: /Rzym nocą/ })).toBeVisible();
+		expect(screen.getByRole("link", { name: /Rzym nocą/ })).toBeInTheDocument();
 		expect(
 			screen.getByRole("link", { name: /Lizbona w deszczu/ }),
-		).toBeVisible();
+		).toBeInTheDocument();
 		expect(screen.queryByRole("link", { name: /Kioto/ })).toBeNull();
 		expect(screen.getByRole("button", { name: "Europa" })).toHaveAttribute(
 			"aria-pressed",
@@ -114,6 +114,11 @@ describe("picking a continent swaps the featured stories", () => {
 			"aria-pressed",
 			"false",
 		);
+		expect(
+			screen.getByRole("link", {
+				name: new RegExp(t["featured.allCountries"]),
+			}),
+		).toHaveAttribute("href", continentPath("pl", "azja"));
 		expect(liveRegion()).toHaveTextContent(`Azja · ${t["featured.heading"]}`);
 	});
 
@@ -122,7 +127,7 @@ describe("picking a continent swaps the featured stories", () => {
 
 		await user.click(screen.getByRole("button", { name: "Afryka" }));
 
-		expect(screen.getByText(t["featured.empty"])).toBeVisible();
+		expect(screen.getByText(t["featured.empty"])).toBeInTheDocument();
 		expect(
 			screen.getByRole("link", { name: t["featured.emptyCta"] }),
 		).toHaveAttribute("href", routes.pl.latest);

@@ -13,4 +13,5 @@ overrides:
   "undici@>=7.0.0 <7.30.1": "^7.30.2"
   # parse5-parser-stream 8.1 declares parse5 ^8.0.0 but calls an 8.1 API; deduped to the
   # 8.0.1 that Sanity's jsdom pulls in, it crashes jsdom 31 (integration tests) on start.
+  # Test tooling, not a security patch: remove once parse5-parser-stream ships a correct range.
   "parse5-parser-stream>parse5": "^8.1.0"
