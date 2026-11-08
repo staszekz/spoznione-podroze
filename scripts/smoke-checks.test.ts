@@ -8,8 +8,13 @@ describe("xmlError: a feed must parse, not just mention <rss>", () => {
 		).toBeNull();
 	});
 
-	it("rejects an unescaped ampersand and a truncated document", () => {
-		expect(xmlError("<rss><channel><title>R&D</title>")).toMatch(/line 1/);
+	it("rejects an unescaped ampersand in an otherwise well-formed feed", () => {
+		expect(
+			xmlError("<rss><channel><title>R&D</title></channel></rss>"),
+		).toMatch(/line 1/);
+	});
+
+	it("rejects a truncated document", () => {
 		expect(xmlError("<rss><channel><title>ok</title>")).not.toBeNull();
 	});
 });
