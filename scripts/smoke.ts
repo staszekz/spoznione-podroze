@@ -53,6 +53,7 @@ const unknownFlags = [...flags].filter(
 if (
 	positional.length !== 1 ||
 	!/^https?:\/\/[^/]/.test(positional[0]) ||
+	!URL.canParse(positional[0]) ||
 	unknownFlags.length > 0 ||
 	(flags.has("--production") && flags.has("--preview"))
 ) {
@@ -209,9 +210,18 @@ async function checkFeed(path: string, posts: Set<string>, lang: Lang) {
 	// A feed reader rejects the whole feed on one parse error: links mean nothing then.
 	if (!checkXml(feed, path)) return;
 	// Absolute links, origin kept: a post path on the wrong host is still broken.
-	const links = [
-		...feed.body.matchAll(/<item>[\s\S]*?<link>([^<]+)<\/link>/g),
-	].map(([, link]) => canonical(link.trim(), feed.url));
+	// Each link is read inside its own <item>: a lazy match across items would
+	// let an item without a <link> borrow the next item's.
+	const items = feed.body.match(/<item\b[\s\S]*?<\/item>/g) ?? [];
+	const links = items.flatMap((item) => {
+		const link = item.match(/<link>([^<]+)<\/link>/)?.[1];
+		return link ? [canonical(link.trim(), feed.url)] : [];
+	});
+	check(
+		links.length === items.length,
+		`${path} items all have a link`,
+		`${items.length - links.length} of ${items.length} items have no <link>`,
+	);
 	const langPosts = [...posts].filter((post) => isPostUrl(post, lang));
 	check(
 		links.length > 0 || langPosts.length === 0,
@@ -248,7 +258,7 @@ async function checkNotFound() {
 function checkSecurityHeaders(page: Page) {
 	const headers = page.headers;
 	check(
-		/max-age=\d+/.test(headers.get("strict-transport-security") ?? ""),
+		/max-age=[1-9]\d*/.test(headers.get("strict-transport-security") ?? ""),
 		`${page.url} sends HSTS`,
 		`Strict-Transport-Security: "${headers.get("strict-transport-security")}"`,
 	);
