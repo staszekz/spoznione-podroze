@@ -24,12 +24,13 @@ const imageFragment = /* groq */ `
 // A post in language $lang has a page only with its own slug and title and its
 // country's slug and name in that language (see POST_SLUGS_QUERY). Every list
 // uses this filter, so it never links to a post without a page, e.g. one
-// imported outside Studio. `defined()` is true for "", so empty slugs are
-// excluded explicitly.
+// imported outside Studio. `defined()` is true for "", so empty strings are
+// excluded explicitly (the same fields `isRoutable` checks).
 const routablePost = /* groq */ `_type == "post" && language == $lang
-	&& defined(slug.current) && slug.current != "" && defined(title)
+	&& defined(slug.current) && slug.current != ""
+	&& defined(title) && title != ""
 	&& defined(country->slug[$lang].current) && country->slug[$lang].current != ""
-	&& defined(country->name[$lang])`;
+	&& defined(country->name[$lang]) && country->name[$lang] != ""`;
 
 const postCardFragment = /* groq */ `
 	_id,
@@ -75,21 +76,18 @@ function isRoutable<T extends RoutableShape>(post: T): post is Routable<T> {
 
 interface PlaceShape {
 	name: string | null;
-	slug: string | null;
 	location: { lat?: number; lng?: number } | null;
 }
 
-/** A continent or country the map and the pills can show: named, linked, placed. */
+/** A continent or country the map and the pills can show: named and placed. */
 type Placed<T extends PlaceShape> = T & {
 	name: string;
-	slug: string;
 	location: { lat: number; lng: number };
 };
 
 function isPlaced<T extends PlaceShape>(place: T): place is Placed<T> {
 	return Boolean(
 		place.name &&
-			place.slug &&
 			typeof place.location?.lat === "number" &&
 			typeof place.location.lng === "number",
 	);
@@ -112,8 +110,9 @@ export interface SanityImage {
 
 type HomepageResult = HOMEPAGE_QUERY_RESULT;
 export type ContinentSummary = Placed<HomepageResult["continents"][number]>;
+// A country pin also needs its slug: the popup links to `/{country}/{post}`.
 export type CountryPin = Omit<
-	Placed<HomepageResult["countries"][number]>,
+	Placed<HomepageResult["countries"][number]> & { slug: string },
 	"latestPost"
 > & {
 	/** Newest post with a page, for the map popup. */
@@ -189,13 +188,18 @@ export async function getHomepageData(lang: Lang): Promise<HomepageData> {
 			.sort((a, b) => b.postCount - a.postCount),
 		stories: data.stories.filter(isRoutable),
 		shareCover: data.shareCover,
-		countries: data.countries.filter(isPlaced).map((country) => ({
-			...country,
-			latestPost:
-				country.latestPost?.title && country.latestPost.slug
-					? { title: country.latestPost.title, slug: country.latestPost.slug }
-					: null,
-		})),
+		countries: data.countries
+			.filter(isPlaced)
+			.filter((country): country is typeof country & { slug: string } =>
+				Boolean(country.slug),
+			)
+			.map((country) => ({
+				...country,
+				latestPost:
+					country.latestPost?.title && country.latestPost.slug
+						? { title: country.latestPost.title, slug: country.latestPost.slug }
+						: null,
+			})),
 	};
 }
 

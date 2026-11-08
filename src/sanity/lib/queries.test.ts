@@ -99,6 +99,11 @@ dataset.push(
 	// would take the top list slots and the newest-post link of each country.
 	post("no-slug", "pl", "2026-05-01", { country: ref("italy") }),
 	post("iceland-no-slug", "pl", "2026-05-01", { country: ref("iceland") }),
+	post("empty-title", "pl", "2026-05-01", {
+		title: "",
+		slug: slug("pusty-tytul"),
+		country: ref("italy"),
+	}),
 	post("no-title", "pl", "2026-05-01", {
 		title: undefined,
 		slug: slug("bez-tytulu"),
