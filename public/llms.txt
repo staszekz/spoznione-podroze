@@ -9,3 +9,7 @@ Struktura treści / content hierarchy: kontynent → kraj → post.
 
 - [Strona główna (PL)](https://spoznionepodroze.pl/)
 - [Homepage (EN)](https://spoznionepodroze.pl/en/)
+- [Kontynenty (PL)](https://spoznionepodroze.pl/kontynenty/)
+- [Continents (EN)](https://spoznionepodroze.pl/en/continents/)
+- [Najnowsze (PL)](https://spoznionepodroze.pl/najnowsze/)
+- [Latest (EN)](https://spoznionepodroze.pl/en/latest/)

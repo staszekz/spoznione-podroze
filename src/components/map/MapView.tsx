@@ -1,8 +1,8 @@
 import { Minus, Plus } from "lucide-react";
 import * as maplibregl from "maplibre-gl";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Lang } from "@/i18n/ui";
-import { postPath, ui } from "@/i18n/ui";
+import { postPath, routes, ui } from "@/i18n/ui";
 import { urlFor } from "@/sanity/lib/image";
 import type {
 	ContinentSummary,
@@ -63,8 +63,20 @@ function thumbEl(
 	return placeholder;
 }
 
+/** Continent markers are real buttons, so Tab and Enter/Space reach them. */
+function continentButton(className: string, continent: ContinentSummary) {
+	const button = el("button", className) as HTMLButtonElement;
+	button.type = "button";
+	button.setAttribute("aria-label", continent.name);
+	return button;
+}
+
 function activeContinentEl(continent: ContinentSummary): HTMLElement {
-	const root = el("div", "flex cursor-pointer flex-col items-center gap-[7px]");
+	const root = continentButton(
+		"flex cursor-pointer flex-col items-center gap-[7px] rounded-2xl",
+		continent,
+	);
+	root.setAttribute("aria-pressed", "true");
 	const photoWrap = el("div", "relative size-[62px] md:size-[78px]");
 	const circle = el(
 		"div",
@@ -88,9 +100,9 @@ function activeContinentEl(continent: ContinentSummary): HTMLElement {
 	return root;
 }
 
-function pillEl(name: string): HTMLElement {
+function pillEl(name: string, tag: "div" | "button" = "div"): HTMLElement {
 	const pill = el(
-		"div",
+		tag,
 		"inline-flex cursor-pointer items-center gap-[7px] rounded-full border border-border bg-card px-3.5 py-[7px] text-[13px] font-semibold text-card-foreground shadow-[0_4px_12px_rgba(31,27,22,0.08)]",
 	);
 	pill.append(
@@ -141,6 +153,7 @@ export default function MapView({
 	const containerRef = useRef<HTMLDivElement>(null);
 	const mapRef = useRef<maplibregl.Map | null>(null);
 	const continentMarkersRef = useRef<maplibregl.Marker[]>([]);
+	const [tilesFailed, setTilesFailed] = useState(false);
 
 	useEffect(() => {
 		if (!containerRef.current) return;
@@ -156,16 +169,39 @@ export default function MapView({
 			minZoom: 0.2,
 			maxZoom: 8,
 			attributionControl: { compact: true },
+			// MapLibre's own UI strings default to English (canvas reads "Map, region").
+			locale: {
+				"Map.Title": ui[lang]["map.canvasLabel"],
+				"AttributionControl.ToggleAttribution": ui[lang]["map.attribution"],
+			},
 		});
 		mapRef.current = map;
+		// The canvas fills an overflow-hidden box, so an outer ring would be clipped.
+		map
+			.getCanvas()
+			.classList.add(
+				"focus-visible:outline-2",
+				"focus-visible:-outline-offset-2",
+				"focus-visible:outline-ring",
+			);
 
+		// Rebuilding swaps the marker elements; keep keyboard focus on the
+		// (new) active marker instead of letting it drop to <body>.
 		const buildContinentMarkers = () => {
+			const hadFocus = continentMarkersRef.current.some((marker) =>
+				marker.getElement().contains(document.activeElement),
+			);
 			for (const marker of continentMarkersRef.current) marker.remove();
 			continentMarkersRef.current = continents.map((continent) => {
 				const active = ($activeContinent.get() ?? defaultId) === continent._id;
-				const element = active
-					? activeContinentEl(continent)
-					: pillEl(continent.name);
+				let element: HTMLElement;
+				if (active) {
+					element = activeContinentEl(continent);
+				} else {
+					element = pillEl(continent.name, "button");
+					(element as HTMLButtonElement).type = "button";
+					element.setAttribute("aria-pressed", "false");
+				}
 				element.addEventListener("click", () => {
 					$activeContinent.set(continent._id);
 					map.flyTo({
@@ -181,6 +217,12 @@ export default function MapView({
 					.setLngLat([continent.location.lng, continent.location.lat])
 					.addTo(map);
 			});
+			if (hadFocus) {
+				continentMarkersRef.current
+					.find((marker) => marker.getElement().ariaPressed === "true")
+					?.getElement()
+					.focus();
+			}
 		};
 
 		const countryMarkers = countries.map((country) => {
@@ -194,19 +236,46 @@ export default function MapView({
 				anchor: "center",
 			})
 				.setLngLat([country.location.lng, country.location.lat])
-				.setPopup(popup);
+				.setPopup(popup)
+				.addTo(map);
 		});
 
+		// Markers stay mounted and are only hidden: re-adding them on every zoom
+		// event closed an open country popup.
 		const syncZoomLevel = () => {
 			const showCountries = map.getZoom() >= COUNTRY_ZOOM;
+			// Hiding a focused continent marker (e.g. after flyTo zooms in) would drop
+			// focus to <body>. The canvas stays visible and pans/zooms with the keyboard.
+			if (
+				showCountries &&
+				continentMarkersRef.current.some((marker) =>
+					marker.getElement().contains(document.activeElement),
+				)
+			) {
+				map.getCanvas().focus();
+			}
 			for (const marker of continentMarkersRef.current) {
 				marker.getElement().style.display = showCountries ? "none" : "";
 			}
 			for (const marker of countryMarkers) {
-				if (showCountries) marker.addTo(map);
-				else marker.remove();
+				marker.getElement().style.display = showCountries ? "" : "none";
+				if (!showCountries) marker.getPopup()?.remove();
 			}
 		};
+
+		// Until one basemap tile has loaded, any error (style, TileJSON, tiles)
+		// means a blank canvas, e.g. OpenFreeMap down: say so. `load` is no proof,
+		// because it also fires when every tile errored. Once a tile loads, the
+		// message clears, and later single-tile errors are ignored.
+		let tileLoaded = false;
+		map.on("sourcedata", (event) => {
+			if (!event.tile || tileLoaded) return;
+			tileLoaded = true;
+			setTilesFailed(false);
+		});
+		map.on("error", () => {
+			if (!tileLoaded) setTilesFailed(true);
+		});
 
 		buildContinentMarkers();
 		syncZoomLevel();
@@ -233,10 +302,25 @@ export default function MapView({
 	return (
 		<div className="relative h-full w-full">
 			<div ref={containerRef} className="h-full w-full" />
+			{tilesFailed && (
+				<div className="pointer-events-none absolute inset-x-0 bottom-4 z-10 flex justify-center px-4">
+					<div className="pointer-events-auto flex flex-col items-center gap-1.5 rounded-2xl border border-border bg-card px-5 py-3 text-center shadow-[0_4px_14px_rgba(31,27,22,0.07)]">
+						<p role="alert" className="text-sm text-muted-foreground">
+							{ui[lang]["map.tilesError"]}
+						</p>
+						<a
+							href={routes[lang].continents}
+							className="text-sm font-semibold text-primary-dark hover:text-foreground dark:text-primary"
+						>
+							{ui[lang]["map.tilesErrorCta"]} <span aria-hidden="true">→</span>
+						</a>
+					</div>
+				</div>
+			)}
 			<div className="absolute right-3.5 top-3.5 z-10 flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-[0_4px_14px_rgba(31,27,22,0.07)]">
 				<button
 					type="button"
-					aria-label="+"
+					aria-label={ui[lang]["map.zoomIn"]}
 					onClick={() => mapRef.current?.zoomIn()}
 					className="flex size-9 cursor-pointer items-center justify-center border-b border-border text-card-foreground hover:bg-muted"
 				>
@@ -244,7 +328,7 @@ export default function MapView({
 				</button>
 				<button
 					type="button"
-					aria-label="−"
+					aria-label={ui[lang]["map.zoomOut"]}
 					onClick={() => mapRef.current?.zoomOut()}
 					className="flex size-9 cursor-pointer items-center justify-center text-card-foreground hover:bg-muted"
 				>

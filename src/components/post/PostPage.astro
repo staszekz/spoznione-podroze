@@ -2,6 +2,7 @@
 import { PortableText, toPlainText } from "astro-portabletext";
 import type { Block, TypedObject } from "astro-portabletext/types";
 import PostCard from "@/components/PostCard.astro";
+import PtLink from "@/components/PtLink.astro";
 import SanityImage from "@/components/SanityImage.tsx";
 import { AUTHOR_NAME, SITE_TITLE } from "@/consts";
 import type { Lang } from "@/i18n/ui";
@@ -167,7 +168,11 @@ const jsonLd = {
 				<div class="post-body">
 					<PortableText
 						value={body}
-						components={{ block: { h2: PtH2 }, type: { image: PtImage } }}
+						components={{
+							block: { h2: PtH2 },
+							type: { image: PtImage },
+							mark: { link: PtLink },
+						}}
 					/>
 				</div>
 			)}
@@ -211,7 +216,7 @@ const jsonLd = {
 				<p class="text-[15px] leading-[1.55]">{t["post.authorText"]}</p>
 				<a
 					href={routes[lang].about}
-					class="text-[15px] font-semibold text-primary-dark hover:underline dark:text-primary"
+					class="-my-1 self-start py-1 text-[15px] font-semibold text-primary-dark hover:underline dark:text-primary"
 				>
 					{`${t["post.authorLink"]} →`}
 				</a>

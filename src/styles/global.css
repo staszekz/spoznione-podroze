@@ -8,18 +8,19 @@
 	--foreground: #1f1b16;
 	--card: #ffffff;
 	--card-foreground: #1f1b16;
-	--primary: #c05e3a;
+	--primary: #b0532f;
 	--primary-foreground: #fbfaf7;
 	--primary-dark: #9c4a2e;
 	--muted: #f2efe9;
 	--muted-foreground: #6b6156;
-	--subtle-foreground: #9a8f80;
-	--faint-foreground: #beb5a4;
+	/* Text tokens keep ≥ 4.5:1 (WCAG AA) on background, card and muted. */
+	--subtle-foreground: #766b5d;
+	--faint-foreground: #766b5d;
 	--nav-foreground: #4a403a;
 	--border: #e9e4da;
 	--border-strong: #d8d1c4;
 	--input: #e9e4da;
-	--ring: #c05e3a;
+	--ring: #b0532f;
 	--radius: 1rem;
 
 	/* Constants rendered on top of photos/gradients — identical in both themes. */
@@ -39,8 +40,8 @@
 	--primary-dark: #9c4a2e;
 	--muted: #1d1912;
 	--muted-foreground: #a79c8b;
-	--subtle-foreground: #7d7365;
-	--faint-foreground: #7d7365;
+	--subtle-foreground: #94897a;
+	--faint-foreground: #94897a;
 	--nav-foreground: #b5ab9c;
 	--border: #2c271f;
 	--border-strong: #3a342a;

@@ -16,7 +16,7 @@ const t = getTranslations(lang);
 ---
 
 <section
-	class="grid items-center gap-5 py-5 md:grid-cols-[1fr_1.15fr] md:gap-12 md:py-10 md:pb-7"
+	class="grid items-center gap-5 py-5 md:gap-8 md:py-10 md:pb-7 lg:grid-cols-[1fr_1.15fr] lg:gap-12"
 >
 	<div class="flex flex-col gap-3.5 md:gap-[18px]">
 		<span
@@ -34,16 +34,16 @@ const t = getTranslations(lang);
 		>
 			{t("hero.lead")}
 		</p>
-		<div class="mt-2 flex gap-3">
+		<div class="mt-2 flex flex-wrap gap-3">
 			<a
 				href="#mapa"
-				class="inline-flex items-center gap-2 rounded-full bg-primary px-[26px] py-3.5 text-[15px] font-semibold text-primary-foreground transition-colors hover:bg-primary-dark"
+				class="inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-primary px-5 py-3.5 text-sm font-semibold sm:px-[26px] sm:text-[15px] text-primary-foreground transition-colors hover:bg-primary-dark"
 			>
 				{`${t("hero.ctaMap")} →`}
 			</a>
 			<a
 				href={routes[lang].latest}
-				class="inline-flex items-center rounded-full border border-border-strong px-[26px] py-3.5 text-[15px] font-semibold text-foreground transition-colors hover:border-foreground"
+				class="inline-flex items-center whitespace-nowrap rounded-full border border-border-strong px-5 py-3.5 text-sm font-semibold sm:px-[26px] sm:text-[15px] text-foreground transition-colors hover:border-foreground"
 			>
 				{t("hero.ctaLatest")}
 			</a>

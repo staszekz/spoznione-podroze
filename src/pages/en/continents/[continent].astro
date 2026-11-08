@@ -1,0 +1,34 @@
+---
+import ContinentPage from "@/components/continents/ContinentPage.astro";
+import { continentPath } from "@/i18n/ui";
+import type { ContinentListItem } from "@/sanity/lib/queries";
+
+export async function getStaticPaths() {
+	const { getContinents } = await import("@/sanity/lib/queries");
+	const [continents, other] = await Promise.all([
+		getContinents("en"),
+		getContinents("pl"),
+	]);
+	// Link the other language only when that continent has a page there too.
+	const otherIds = new Set(other.map((c) => c._id));
+	return continents.map((continent) => ({
+		params: { continent: continent.slug },
+		props: {
+			continent,
+			altHref:
+				otherIds.has(continent._id) && continent.slugs.pl
+					? continentPath("pl", continent.slugs.pl)
+					: undefined,
+		},
+	}));
+}
+
+interface Props {
+	continent: ContinentListItem;
+	altHref: string | undefined;
+}
+
+const { continent, altHref } = Astro.props;
+---
+
+<ContinentPage lang="en" continent={continent} altHref={altHref} />

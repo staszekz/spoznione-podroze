@@ -1,4 +1,5 @@
 ---
+import { COLLAB_PAGE_LIVE } from "@/consts";
 import type { Lang } from "@/i18n/ui";
 import { getTranslations, routes } from "@/i18n/ui";
 
@@ -20,16 +21,19 @@ const r = routes[lang];
 			<span
 				class="font-mono text-[10px] tracking-[0.08em] text-collab-eyebrow md:text-[11px]"
 			>
-				{t("collab.eyebrow")}
+				{t(COLLAB_PAGE_LIVE ? "collab.eyebrow" : "collab.eyebrowAboutOnly")}
 			</span>
 			<h2
 				class="font-display text-[23px] font-bold leading-[1.15] text-on-image md:text-[30px]"
 			>
-				{t("collab.title")}
+				{t(COLLAB_PAGE_LIVE ? "collab.title" : "collab.titleAboutOnly")}
 			</h2>
-			<p class="hidden max-w-[520px] text-[15px] text-on-image/90 md:block">
-				{t("collab.lead")}
-			</p>
+			{/* Until the collab page is live, the band invites only to the about page. */}
+			{COLLAB_PAGE_LIVE && (
+				<p class="hidden max-w-[520px] text-[15px] text-on-image/90 md:block">
+					{t("collab.lead")}
+				</p>
+			)}
 		</div>
 		<div class="flex gap-2.5 md:flex-none md:flex-col">
 			<a
@@ -38,12 +42,14 @@ const r = routes[lang];
 			>
 				{t("collab.ctaAbout")}
 			</a>
-			<a
-				href={r.collab}
-				class="flex h-[46px] flex-1 items-center justify-center rounded-full border border-on-image/60 px-[26px] text-sm font-semibold text-on-image md:flex-none md:text-[15px]"
-			>
-				{t("collab.ctaCollab")}
-			</a>
+			{COLLAB_PAGE_LIVE && (
+				<a
+					href={r.collab}
+					class="flex h-[46px] flex-1 items-center justify-center rounded-full border border-on-image/60 px-[26px] text-sm font-semibold text-on-image md:flex-none md:text-[15px]"
+				>
+					{t("collab.ctaCollab")}
+				</a>
+			)}
 		</div>
 	</div>
 </section>

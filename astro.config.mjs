@@ -6,6 +6,7 @@ import sanity from "@sanity/astro";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig, fontProviders } from "astro/config";
 import { loadEnv } from "vite";
+import { COLLAB_PAGE_LIVE } from "./src/consts.ts";
 import { SANITY_DATASET, SANITY_PROJECT_ID } from "./src/sanity/env.ts";
 
 const { PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET } = loadEnv(
@@ -22,7 +23,12 @@ export default defineConfig({
 		locales: ["pl", "en"],
 	},
 	integrations: [
-		sitemap(),
+		sitemap({
+			// Hidden pages stay reachable by URL but out of search (see consts.ts).
+			filter: (page) =>
+				COLLAB_PAGE_LIVE ||
+				!/^https?:\/\/[^/]+\/(wspolpraca|en\/work-with-me)\/?$/.test(page),
+		}),
 		sanity({
 			projectId: PUBLIC_SANITY_PROJECT_ID || SANITY_PROJECT_ID,
 			dataset: PUBLIC_SANITY_DATASET || SANITY_DATASET,

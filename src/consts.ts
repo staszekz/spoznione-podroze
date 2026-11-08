@@ -6,11 +6,14 @@ export const SITE_DESCRIPTION = {
 /** Shown to search engines as the post author (JSON-LD). */
 export const AUTHOR_NAME = "Staszek";
 
-/**
- * Data controller named in the privacy policy (GDPR art. 13).
- * TODO(LAN-125): replace the placeholders before launch.
- */
+/** Data controller named in the privacy policy (GDPR art. 13). */
 export const PRIVACY_CONTROLLER = {
-	name: "[IMIĘ I NAZWISKO]",
-	email: "[EMAIL]",
+	name: "Stanisław Zajączkowski",
+	email: "kontakt@spoznionepodroze.pl",
 } as const;
+
+/**
+ * The collaboration page has no content yet: while false, it is unlinked,
+ * `noindex` and left out of the sitemap. Flip to true once it is written.
+ */
+export const COLLAB_PAGE_LIVE = false;

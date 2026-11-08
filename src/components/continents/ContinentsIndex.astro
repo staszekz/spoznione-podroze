@@ -1,0 +1,73 @@
+---
+import SanityImage from "@/components/SanityImage.tsx";
+import type { Lang } from "@/i18n/ui";
+import { continentMeta, continentPath, getTranslations } from "@/i18n/ui";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getContinents } from "@/sanity/lib/queries";
+
+interface Props {
+	lang: Lang;
+	altHref: string;
+}
+
+const { lang, altHref } = Astro.props;
+const t = getTranslations(lang);
+const continents = await getContinents(lang);
+---
+
+<BaseLayout
+	lang={lang}
+	title={t("continents.title")}
+	description={t("continents.lead")}
+	altHref={altHref}
+>
+	<section class="flex flex-col gap-6 py-10 md:py-14">
+		<div class="flex flex-col gap-2">
+			<h1
+				class="font-display text-4xl font-bold tracking-[-0.03em] md:text-5xl"
+			>
+				{t("continents.title")}
+			</h1>
+			<p class="max-w-[520px] text-lg text-muted-foreground">
+				{t("continents.lead")}
+			</p>
+		</div>
+
+		{continents.length === 0 ? (
+			<p class="py-10 text-muted-foreground">{t("latest.empty")}</p>
+		) : (
+			<ul class="grid gap-4 sm:grid-cols-2 md:gap-6 lg:grid-cols-3">
+				{continents.map((continent) => (
+					<li>
+						<a
+							href={continentPath(lang, continent.slug)}
+							class="group flex flex-col gap-3 rounded-[16px] border border-border bg-card p-3 transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_24px_rgba(31,27,22,0.1)] md:rounded-[18px] md:p-3.5"
+						>
+							<div class="relative aspect-[16/10] overflow-hidden rounded-[11px] md:rounded-[13px]">
+								<SanityImage
+									image={continent.image}
+									width={720}
+									height={450}
+									sizes="(min-width: 1200px) 370px, (min-width: 1024px) 31vw, (min-width: 640px) 48vw, 100vw"
+									className="transition-transform duration-500 group-hover:scale-[1.03]"
+								/>
+							</div>
+							<div class="flex flex-col gap-1 px-1 pb-1">
+								<h2 class="font-display text-xl font-semibold tracking-[-0.01em] md:text-2xl">
+									{continent.name}
+								</h2>
+								<span class="font-mono text-[11px] text-subtle-foreground">
+									{continentMeta(
+										lang,
+										continent.countryCount,
+										continent.postCount,
+									)}
+								</span>
+							</div>
+						</a>
+					</li>
+				))}
+			</ul>
+		)}
+	</section>
+</BaseLayout>
