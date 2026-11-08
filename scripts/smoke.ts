@@ -52,7 +52,7 @@ const unknownFlags = [...flags].filter(
 );
 if (
 	positional.length !== 1 ||
-	!URL.canParse(positional[0]) ||
+	!/^https?:\/\/[^/]/.test(positional[0]) ||
 	unknownFlags.length > 0 ||
 	(flags.has("--production") && flags.has("--preview"))
 ) {
@@ -119,7 +119,7 @@ function pathOf(href: string): string {
 
 /** The sitemap points at the canonical domain: rebase it on the tested host. */
 function onBase(href: string): URL {
-	const url = new URL(href);
+	const url = new URL(href, base);
 	return new URL(url.pathname + url.search, base);
 }
 
@@ -209,12 +209,19 @@ async function checkFeed(path: string, posts: Set<string>, lang: Lang) {
 		`${path} has items`,
 		`no <item> although the sitemap lists ${langPosts.length} posts`,
 	);
-	const missing = links.filter((link) => !posts.has(link));
+	// Same language only: a PL feed linking EN posts would still be a bug.
+	const own = new Set(langPosts);
+	const missing = links.filter((link) => !own.has(link));
 	check(
 		missing.length === 0,
-		`${path} links only to posts in the sitemap`,
-		`not in the sitemap: ${missing.join(", ")}`,
+		`${path} links only to ${lang.toUpperCase()} posts in the sitemap`,
+		`not a ${lang.toUpperCase()} post in the sitemap: ${missing.join(", ")}`,
 	);
+	// The sitemap comes from the same build, so also load one linked page.
+	if (links.length > 0) {
+		const first = await fetchPage(links[0]);
+		if (first) expectStatus(first, 200);
+	}
 }
 
 async function checkNotFound() {
