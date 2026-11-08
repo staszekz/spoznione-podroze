@@ -2,6 +2,9 @@
 // see, not the Cloudflare configuration. Runs on Node 24 without a build step.
 // Usage and flags: see USAGE below, or `pnpm smoke --help`.
 
+// A module, so top-level await type-checks (the file has no imports).
+export {};
+
 const USAGE = `Usage: pnpm smoke <base-url> [--production | --preview]
 
   pnpm smoke http://localhost:8787                  local wrangler dev (pnpm preview:cf)
