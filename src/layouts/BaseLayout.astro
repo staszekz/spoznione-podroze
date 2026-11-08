@@ -3,7 +3,7 @@ import { Font } from "astro:assets";
 import Footer from "@/components/Footer.astro";
 import Header from "@/components/Header.astro";
 import { SITE_TITLE } from "@/consts";
-import type { Lang } from "@/i18n/ui";
+import { type Lang, ui } from "@/i18n/ui";
 import "@/styles/global.css";
 
 interface Props {
@@ -117,11 +117,17 @@ const jsonLdHtml = jsonLd
 		</script>
 	</head>
 	<body>
+		<a
+			href="#main"
+			class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-foreground focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-background"
+		>
+			{ui[lang]["a11y.skipToContent"]}
+		</a>
 		<div
 			class="mx-auto flex min-h-screen w-full max-w-[1200px] flex-col px-5 md:px-7"
 		>
 			<Header lang={lang} altHref={altHref} />
-			<main class="flex-1">
+			<main id="main" tabindex="-1" class="flex-1 focus:outline-none">
 				<slot />
 			</main>
 			<Footer lang={lang} />
