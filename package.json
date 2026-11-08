@@ -17,7 +17,9 @@
 		"studio:deploy": "sanity deploy",
 		"check": "biome check --write .",
 		"format": "biome format --write .",
-		"lint": "biome lint ."
+		"lint": "biome lint .",
+		"lint:ci": "biome ci .",
+		"typecheck": "astro check"
 	},
 	"dependencies": {
 		"@astrojs/react": "^7.1.1",

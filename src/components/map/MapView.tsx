@@ -169,8 +169,21 @@ export default function MapView({
 			minZoom: 0.2,
 			maxZoom: 8,
 			attributionControl: { compact: true },
+			// MapLibre's own UI strings default to English (canvas reads "Map, region").
+			locale: {
+				"Map.Title": ui[lang]["map.canvasLabel"],
+				"AttributionControl.ToggleAttribution": ui[lang]["map.attribution"],
+			},
 		});
 		mapRef.current = map;
+		// The canvas fills an overflow-hidden box, so an outer ring would be clipped.
+		map
+			.getCanvas()
+			.classList.add(
+				"focus-visible:outline-2",
+				"focus-visible:-outline-offset-2",
+				"focus-visible:outline-ring",
+			);
 
 		// Rebuilding swaps the marker elements; keep keyboard focus on the
 		// (new) active marker instead of letting it drop to <body>.
@@ -231,6 +244,16 @@ export default function MapView({
 		// event closed an open country popup.
 		const syncZoomLevel = () => {
 			const showCountries = map.getZoom() >= COUNTRY_ZOOM;
+			// Hiding a focused continent marker (e.g. after flyTo zooms in) would drop
+			// focus to <body>. The canvas stays visible and pans/zooms with the keyboard.
+			if (
+				showCountries &&
+				continentMarkersRef.current.some((marker) =>
+					marker.getElement().contains(document.activeElement),
+				)
+			) {
+				map.getCanvas().focus();
+			}
 			for (const marker of continentMarkersRef.current) {
 				marker.getElement().style.display = showCountries ? "none" : "";
 			}
@@ -240,17 +263,18 @@ export default function MapView({
 			}
 		};
 
-		// An error before the first `load` means the style or base tiles are
-		// unreachable (e.g. OpenFreeMap down): the canvas stays blank, so say so.
-		// If the map loads after all (a transient tile error), clear the message;
-		// later errors (single tiles) are ignored.
-		let loaded = false;
-		map.once("load", () => {
-			loaded = true;
+		// Until one basemap tile has loaded, any error (style, TileJSON, tiles)
+		// means a blank canvas, e.g. OpenFreeMap down: say so. `load` is no proof,
+		// because it also fires when every tile errored. Once a tile loads, the
+		// message clears, and later single-tile errors are ignored.
+		let tileLoaded = false;
+		map.on("sourcedata", (event) => {
+			if (!event.tile || tileLoaded) return;
+			tileLoaded = true;
 			setTilesFailed(false);
 		});
 		map.on("error", () => {
-			if (!loaded) setTilesFailed(true);
+			if (!tileLoaded) setTilesFailed(true);
 		});
 
 		buildContinentMarkers();
@@ -296,7 +320,7 @@ export default function MapView({
 			<div className="absolute right-3.5 top-3.5 z-10 flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-[0_4px_14px_rgba(31,27,22,0.07)]">
 				<button
 					type="button"
-					aria-label="+"
+					aria-label={ui[lang]["map.zoomIn"]}
 					onClick={() => mapRef.current?.zoomIn()}
 					className="flex size-9 cursor-pointer items-center justify-center border-b border-border text-card-foreground hover:bg-muted"
 				>
@@ -304,7 +328,7 @@ export default function MapView({
 				</button>
 				<button
 					type="button"
-					aria-label="−"
+					aria-label={ui[lang]["map.zoomOut"]}
 					onClick={() => mapRef.current?.zoomOut()}
 					className="flex size-9 cursor-pointer items-center justify-center text-card-foreground hover:bg-muted"
 				>

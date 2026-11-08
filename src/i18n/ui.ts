@@ -60,6 +60,11 @@ export const ui = {
 		"map.tilesError": "Podkład mapy jest chwilowo niedostępny.",
 		"map.tilesErrorCta": "Przeglądaj kontynenty",
 		"map.retry": "Odśwież",
+		"map.canvasLabel":
+			"Mapa: przesuwaj strzałkami, przybliżaj klawiszami + i −",
+		"map.zoomIn": "Przybliż",
+		"map.zoomOut": "Oddal",
+		"map.attribution": "Pokaż lub ukryj źródła mapy",
 		"theme.toggle": "Przełącz motyw",
 		"menu.open": "Otwórz menu",
 		"menu.close": "Zamknij menu",
@@ -123,6 +128,10 @@ export const ui = {
 		"map.tilesError": "The map background is unavailable right now.",
 		"map.tilesErrorCta": "Browse continents",
 		"map.retry": "Reload",
+		"map.canvasLabel": "Map: pan with the arrow keys, zoom with + and −",
+		"map.zoomIn": "Zoom in",
+		"map.zoomOut": "Zoom out",
+		"map.attribution": "Show or hide map sources",
 		"theme.toggle": "Toggle theme",
 		"menu.open": "Open menu",
 		"menu.close": "Close menu",
@@ -222,6 +231,20 @@ function formatMonthYear(lang: Lang, value: string, timeZone: string): string {
 }
 
 const AUTHOR_TZ = "Europe/Warsaw";
+
+/**
+ * "14 maja 2026" for a `datetime` instant, in the author's time zone. Without
+ * it the build machine's zone (UTC on Cloudflare) decides, so a post published
+ * shortly after midnight in Poland would show the previous day.
+ */
+export function formatDate(lang: Lang, value: string): string {
+	return new Intl.DateTimeFormat(lang === "pl" ? "pl-PL" : "en-US", {
+		day: "numeric",
+		month: "long",
+		year: "numeric",
+		timeZone: AUTHOR_TZ,
+	}).format(new Date(value));
+}
 
 /**
  * "Podróż: wrzesień 2017. Opisana: listopad 2026." — the publish month is

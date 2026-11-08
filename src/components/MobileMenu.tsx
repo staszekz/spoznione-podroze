@@ -1,5 +1,5 @@
 import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface MobileMenuProps {
 	items: { href: string; label: string }[];
@@ -13,10 +13,25 @@ export default function MobileMenu({
 	closeLabel,
 }: MobileMenuProps) {
 	const [open, setOpen] = useState(false);
+	const buttonRef = useRef<HTMLButtonElement>(null);
+
+	// Escape closes the open menu and returns focus to the toggle, so keyboard
+	// users stay where they were.
+	useEffect(() => {
+		if (!open) return;
+		const onKeyDown = (event: KeyboardEvent) => {
+			if (event.key !== "Escape" || event.defaultPrevented) return;
+			setOpen(false);
+			buttonRef.current?.focus();
+		};
+		document.addEventListener("keydown", onKeyDown);
+		return () => document.removeEventListener("keydown", onKeyDown);
+	}, [open]);
 
 	return (
 		<>
 			<button
+				ref={buttonRef}
 				type="button"
 				aria-label={open ? closeLabel : openLabel}
 				aria-expanded={open}

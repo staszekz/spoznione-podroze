@@ -1,0 +1,17 @@
+# Workers static assets headers: https://developers.cloudflare.com/workers/static-assets/headers/
+# Full CSP is out of scope until ads/consent tooling is decided (LAN-153).
+
+/*
+  Strict-Transport-Security: max-age=31536000
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
+# Astro fingerprints everything in _astro/, so a changed file gets a new URL.
+# HTML keeps the default revalidating cache, so a Sanity rebuild shows up at once.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Every workers.dev host (PR previews and the workers.dev production alias) duplicates
+# spoznionepodroze.pl; keep it out of search results. The custom domain has no rule here.
+https://:host.staszek-zajaczkowski.workers.dev/*
+  X-Robots-Tag: noindex

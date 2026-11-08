@@ -1,7 +1,7 @@
 ---
 import SanityImage from "@/components/SanityImage.tsx";
 import type { Lang } from "@/i18n/ui";
-import { postMeta, postPath, tripYear } from "@/i18n/ui";
+import { formatDate, postMeta, postPath, tripYear } from "@/i18n/ui";
 import type { LatestPost } from "@/sanity/lib/queries";
 
 interface Props {
@@ -20,13 +20,7 @@ const {
 const meta = postMeta(lang, post.readingTime, post.photoCount);
 const year = tripYear(post.tripDate);
 
-const date = post.publishedAt
-	? new Intl.DateTimeFormat(lang === "pl" ? "pl-PL" : "en-US", {
-			day: "numeric",
-			month: "long",
-			year: "numeric",
-		}).format(new Date(post.publishedAt))
-	: null;
+const date = post.publishedAt ? formatDate(lang, post.publishedAt) : null;
 ---
 
 <a
