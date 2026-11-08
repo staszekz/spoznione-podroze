@@ -15,6 +15,12 @@ const imageFragment = /* groq */ `
 	alt
 `;
 
+// A post in language $lang has a page only with its own slug and its country's
+// slug in that language (see POST_SLUGS_QUERY). Every list uses this filter, so
+// it never links to a post without a page, e.g. one imported outside Studio.
+const routablePost = /* groq */ `_type == "post" && language == $lang
+	&& defined(slug.current) && defined(country->slug[$lang].current)`;
+
 const postCardFragment = /* groq */ `
 	_id,
 	title,
@@ -100,15 +106,15 @@ const HOMEPAGE_QUERY = defineQuery(/* groq */ `{
 		"slug": slug[$lang].current,
 		location,
 		image { ${imageFragment} },
-		"postCount": count(*[_type == "post" && language == $lang && country->continent._ref == ^._id])
+		"postCount": count(*[${routablePost} && country->continent._ref == ^._id])
 	},
 	"stories": *[_type == "continent"] {
-		"items": *[_type == "post" && language == $lang && country->continent._ref == ^._id]
+		"items": *[${routablePost} && country->continent._ref == ^._id]
 			| order(coalesce(featured, false) desc, publishedAt desc)[0...3] {
 			${postCardFragment}
 		}
 	}.items[],
-	"shareCover": *[_type == "post" && language == $lang]
+	"shareCover": *[${routablePost}]
 		| order(coalesce(featured, false) desc, publishedAt desc)[0].coverImage { ${imageFragment} },
 	"countries": *[_type == "country"] {
 		_id,
@@ -117,7 +123,7 @@ const HOMEPAGE_QUERY = defineQuery(/* groq */ `{
 		location,
 		"continentId": continent._ref,
 		image { ${imageFragment} },
-		"latestPost": *[_type == "post" && language == $lang && references(^._id)]
+		"latestPost": *[${routablePost} && references(^._id)]
 			| order(publishedAt desc)[0] { title, "slug": slug.current }
 	}
 }`);
@@ -132,7 +138,7 @@ export async function getHomepageData(lang: Lang): Promise<HomepageData> {
 // The country filter keeps posts with a missing/unresolved country ref out of
 // the result, so getStaticPaths never emits `/undefined/slug`.
 const POST_SLUGS_QUERY = defineQuery(/* groq */ `
-	*[_type == "post" && defined(slug.current) && language == $lang && defined(country->slug[$lang].current)] {
+	*[${routablePost}] {
 		"slug": slug.current,
 		"country": country->slug[$lang].current
 	}
@@ -163,9 +169,8 @@ const POST_QUERY = defineQuery(/* groq */ `
 					country->slug.pl.current
 				)
 			},
-		"related": *[_type == "post" && language == $lang && _id != ^._id
-			&& country._ref == ^.country._ref && defined(slug.current)
-			&& defined(country->slug[$lang].current)]
+		"related": *[${routablePost} && _id != ^._id
+			&& country._ref == ^.country._ref]
 			| order(publishedAt desc)[0...3] {
 			${postCardFragment}
 		}
@@ -215,7 +220,7 @@ export interface LatestPost {
 }
 
 const LATEST_POSTS_QUERY = defineQuery(/* groq */ `
-	*[_type == "post" && language == $lang && defined(country->slug[$lang].current)]
+	*[${routablePost}]
 		| order(publishedAt desc) {
 		${postCardFragment}
 	}
@@ -287,10 +292,8 @@ const CONTINENTS_QUERY = defineQuery(/* groq */ `
 		image { ${imageFragment} },
 		"countryCount": count(*[_type == "country" && continent._ref == ^._id
 			&& defined(slug[$lang].current)
-			&& count(*[_type == "post" && language == $lang && defined(slug.current)
-				&& country._ref == ^._id]) > 0]),
-		"postCount": count(*[_type == "post" && language == $lang && defined(slug.current)
-			&& defined(country->slug[$lang].current) && country->continent._ref == ^._id])
+			&& count(*[${routablePost} && country._ref == ^._id]) > 0]),
+		"postCount": count(*[${routablePost} && country->continent._ref == ^._id])
 	}[postCount > 0]
 `);
 
@@ -304,8 +307,7 @@ export async function getContinents(lang: Lang): Promise<ContinentListItem[]> {
 }
 
 const CONTINENT_POSTS_QUERY = defineQuery(/* groq */ `
-	*[_type == "post" && language == $lang && defined(slug.current)
-		&& defined(country->slug[$lang].current) && country->continent._ref == $continentId]
+	*[${routablePost} && country->continent._ref == $continentId]
 		| order(publishedAt desc) {
 		${postCardFragment}
 	}

@@ -226,32 +226,56 @@ export default function MapView({
 		};
 
 		const countryMarkers = countries.map((country) => {
+			// A <div>, not a <button>: MapLibre toggles the popup on Enter/Space
+			// itself, and a button's synthetic click would toggle it a second time
+			// (map click handler), closing it at once. So: role + expanded state.
+			const element = pillEl(country.name);
+			element.setAttribute("role", "button");
+			element.setAttribute("aria-expanded", "false");
+			// The opened popup moves focus to its link before this keypress ends;
+			// its default action would then follow that link (Enter) or scroll the
+			// page (Space).
+			element.addEventListener("keypress", (event) => {
+				if (event.code === "Enter" || event.code === "Space") {
+					event.preventDefault();
+				}
+			});
+			const content = countryPopupEl(country, lang);
 			const popup = new maplibregl.Popup({
 				offset: 14,
 				closeButton: false,
 				maxWidth: "220px",
-			}).setDOMContent(countryPopupEl(country, lang));
-			return new maplibregl.Marker({
-				element: pillEl(country.name),
-				anchor: "center",
-			})
+			}).setDOMContent(content);
+			// Focus lands on the popup link; MapLibre has no Escape to leave it.
+			content.addEventListener("keydown", (event) => {
+				if (event.key !== "Escape") return;
+				popup.remove();
+				element.focus();
+			});
+			popup.on("open", () => element.setAttribute("aria-expanded", "true"));
+			popup.on("close", () => element.setAttribute("aria-expanded", "false"));
+			// setPopup after addTo: addTo() calls remove(), which drops the
+			// Enter/Space listener setPopup() attached (MapLibre 6.16).
+			return new maplibregl.Marker({ element, anchor: "center" })
 				.setLngLat([country.location.lng, country.location.lat])
-				.setPopup(popup)
-				.addTo(map);
+				.addTo(map)
+				.setPopup(popup);
 		});
 
 		// Markers stay mounted and are only hidden: re-adding them on every zoom
 		// event closed an open country popup.
 		const syncZoomLevel = () => {
 			const showCountries = map.getZoom() >= COUNTRY_ZOOM;
-			// Hiding a focused continent marker (e.g. after flyTo zooms in) would drop
-			// focus to <body>. The canvas stays visible and pans/zooms with the keyboard.
-			if (
-				showCountries &&
-				continentMarkersRef.current.some((marker) =>
-					marker.getElement().contains(document.activeElement),
-				)
-			) {
+			// Hiding a focused marker or popup (continents when zooming in, countries
+			// and their popups when zooming out) would drop focus to <body>. The
+			// canvas stays visible and pans/zooms with the keyboard.
+			const hiding = showCountries
+				? continentMarkersRef.current.map((marker) => marker.getElement())
+				: countryMarkers.flatMap((marker) => [
+						marker.getElement(),
+						marker.getPopup()?.getElement(),
+					]);
+			if (hiding.some((node) => node?.contains(document.activeElement))) {
 				map.getCanvas().focus();
 			}
 			for (const marker of continentMarkersRef.current) {

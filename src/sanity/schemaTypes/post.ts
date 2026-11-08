@@ -1,10 +1,33 @@
-import { defineArrayMember, defineField, defineType } from "sanity";
+import {
+	defineArrayMember,
+	defineField,
+	defineType,
+	getPublishedId,
+} from "sanity";
 
 // Sanity extracts image metadata only at upload, and only the keys listed here.
 // Listing them replaces the defaults, so lqip/blurhash/palette must stay explicit.
 // exif + location (GPS) feed the map and lightbox captions later (LAN-163).
 const imageMetadata: ("blurhash" | "lqip" | "palette" | "exif" | "location")[] =
 	["blurhash", "lqip", "palette", "exif", "location"];
+
+// Empty alt renders alt="" (decorative), which hides a story photo from screen
+// readers. A warning, not an error: a purely decorative photo may stay empty.
+const altField = defineField({
+	name: "alt",
+	title: "Alternative text",
+	description:
+		"What the photo shows, for screen readers. Leave empty only for a purely decorative photo.",
+	type: "string",
+	validation: (rule) =>
+		rule
+			.custom((alt) =>
+				alt?.trim()
+					? true
+					: "Describe the photo, unless it is purely decorative.",
+			)
+			.warning(),
+});
 
 export const post = defineType({
 	name: "post",
@@ -27,7 +50,31 @@ export const post = defineType({
 			name: "slug",
 			title: "Slug",
 			type: "slug",
-			options: { source: "title" },
+			options: {
+				source: "title",
+				// The URL is /{country}/{slug} per language, so PL and EN translations
+				// may share a slug. Sanity's default check is unique across all posts.
+				isUnique: async (slug, context) => {
+					const { document, getClient } = context;
+					const country = (document?.country as { _ref?: string } | undefined)
+						?._ref;
+					// No country yet: the URL is unknown and `required` already flags it.
+					if (!document || !country) return true;
+					const id = getPublishedId(document._id);
+					return await getClient({ apiVersion: "2026-07-01" }).fetch(
+						`!defined(*[_type == "post" && !(_id in [$draft, $published])
+							&& slug.current == $slug && language == $language
+							&& country._ref == $country][0]._id)`,
+						{
+							draft: `drafts.${id}`,
+							published: id,
+							slug,
+							language: document.language ?? null,
+							country,
+						},
+					);
+				},
+			},
 			validation: (rule) => rule.required(),
 		}),
 		defineField({
@@ -50,9 +97,7 @@ export const post = defineType({
 			title: "Cover image",
 			type: "image",
 			options: { hotspot: true, metadata: imageMetadata },
-			fields: [
-				defineField({ name: "alt", title: "Alternative text", type: "string" }),
-			],
+			fields: [altField],
 			validation: (rule) => rule.required(),
 		}),
 		defineField({
@@ -64,11 +109,7 @@ export const post = defineType({
 					type: "image",
 					options: { hotspot: true, metadata: imageMetadata },
 					fields: [
-						defineField({
-							name: "alt",
-							title: "Alternative text",
-							type: "string",
-						}),
+						altField,
 						defineField({
 							name: "caption",
 							title: "Caption",
@@ -143,11 +184,7 @@ export const post = defineType({
 					type: "image",
 					options: { hotspot: true, metadata: imageMetadata },
 					fields: [
-						defineField({
-							name: "alt",
-							title: "Alternative text",
-							type: "string",
-						}),
+						altField,
 						defineField({
 							name: "caption",
 							title: "Caption",

@@ -35,7 +35,8 @@ export default function FeaturedStories({
 	defaultId,
 	lang,
 }: FeaturedStoriesProps) {
-	const selected = useStore($activeContinent) ?? defaultId;
+	const picked = useStore($activeContinent);
+	const selected = picked ?? defaultId;
 	const continent = continents.find((c) => c._id === selected);
 	const filtered = stories
 		.filter((s) => s.country?.continentId === selected)
@@ -49,6 +50,15 @@ export default function FeaturedStories({
 
 	return (
 		<section className="flex flex-col gap-4 py-6 md:gap-[18px] md:py-7">
+			{/* Picking a continent on the map or the pills swaps this list in place;
+			    a screen reader hears nothing unless a live region says so. Empty
+			    until the first pick, so the heading is not read twice on load. */}
+			<p className="sr-only" aria-live="polite">
+				{picked &&
+					`${continent?.name} · ${ui[lang]["featured.heading"]}${
+						filtered.length === 0 ? `. ${ui[lang]["featured.empty"]}` : ""
+					}`}
+			</p>
 			<div className="flex items-baseline justify-between gap-3">
 				<h2 className="font-display text-[21px] font-bold tracking-[-0.01em] md:text-[26px]">
 					{continent?.name} · {ui[lang]["featured.heading"]}

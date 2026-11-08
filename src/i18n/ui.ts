@@ -13,6 +13,7 @@ export const ui = {
 		"nav.latest": "Najnowsze",
 		"nav.about": "O mnie",
 		"nav.collab": "Współpraca",
+		"a11y.skipToContent": "Przejdź do treści",
 		"hero.eyebrow": "BLOG PODRÓŻNICZY · LEPIEJ PÓŹNO NIŻ WCALE",
 		"hero.title": "Spóźnieni, ale już w drodze",
 		"hero.lead":
@@ -81,6 +82,7 @@ export const ui = {
 		"nav.latest": "Latest",
 		"nav.about": "About",
 		"nav.collab": "Work with me",
+		"a11y.skipToContent": "Skip to content",
 		"hero.eyebrow": "TRAVEL BLOG · BETTER LATE THAN NEVER",
 		"hero.title": "Late, but finally on the road",
 		"hero.lead":
