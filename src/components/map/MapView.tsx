@@ -71,9 +71,13 @@ function continentButton(className: string, continent: ContinentSummary) {
 	return button;
 }
 
+// A solid ring: the global outline-ring/50 fallback barely shows on the light map.
+const FOCUS_RING =
+	"focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
+
 function activeContinentEl(continent: ContinentSummary): HTMLElement {
 	const root = continentButton(
-		"flex cursor-pointer flex-col items-center gap-[7px] rounded-2xl",
+		`flex cursor-pointer flex-col items-center gap-[7px] rounded-2xl ${FOCUS_RING}`,
 		continent,
 	);
 	root.setAttribute("aria-pressed", "true");
@@ -103,7 +107,7 @@ function activeContinentEl(continent: ContinentSummary): HTMLElement {
 function pillEl(name: string, tag: "div" | "button" = "div"): HTMLElement {
 	const pill = el(
 		tag,
-		"inline-flex cursor-pointer items-center gap-[7px] rounded-full border border-border bg-card px-3.5 py-[7px] text-[13px] font-semibold text-card-foreground shadow-[0_4px_12px_rgba(31,27,22,0.08)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+		`inline-flex cursor-pointer items-center gap-[7px] rounded-full border border-border bg-card px-3.5 py-[7px] text-[13px] font-semibold text-card-foreground shadow-[0_4px_12px_rgba(31,27,22,0.08)] ${FOCUS_RING}`,
 	);
 	pill.append(
 		el("span", "size-[7px] rounded-full bg-primary"),
@@ -134,7 +138,7 @@ function countryPopupEl(country: CountryPin, lang: Lang): HTMLElement {
 		);
 		const link = el(
 			"a",
-			"text-[13px] font-semibold text-primary",
+			`text-[13px] font-semibold text-primary ${FOCUS_RING}`,
 			`${ui[lang]["map.read"]} →`,
 		) as HTMLAnchorElement;
 		link.href = postPath(lang, country.slug, country.latestPost.slug);
