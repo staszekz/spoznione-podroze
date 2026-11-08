@@ -83,10 +83,16 @@ export interface CountryPin {
 
 export interface HomepageData {
 	continents: ContinentSummary[];
+	/** Up to 3 stories per continent, featured first, then newest. */
 	stories: StoryCard[];
+	shareCover: SanityImage | null;
 	countries: CountryPin[];
 }
 
+// `stories`: FeaturedStories shows at most 3 stories per continent, so only
+// those are fetched (`.items[]` flattens the per-continent lists), not the
+// whole archive. `shareCover`: the cover of the first featured (or newest)
+// story overall, for the homepage share image.
 const HOMEPAGE_QUERY = defineQuery(/* groq */ `{
 	"continents": *[_type == "continent"] | order(name[$lang] asc) {
 		_id,
@@ -96,10 +102,14 @@ const HOMEPAGE_QUERY = defineQuery(/* groq */ `{
 		image { ${imageFragment} },
 		"postCount": count(*[_type == "post" && language == $lang && country->continent._ref == ^._id])
 	},
-	"stories": *[_type == "post" && language == $lang]
-		| order(coalesce(featured, false) desc, publishedAt desc) {
-		${postCardFragment}
-	},
+	"stories": *[_type == "continent"] {
+		"items": *[_type == "post" && language == $lang && country->continent._ref == ^._id]
+			| order(coalesce(featured, false) desc, publishedAt desc)[0...3] {
+			${postCardFragment}
+		}
+	}.items[],
+	"shareCover": *[_type == "post" && language == $lang]
+		| order(coalesce(featured, false) desc, publishedAt desc)[0].coverImage { ${imageFragment} },
 	"countries": *[_type == "country"] {
 		_id,
 		"name": name[$lang],
