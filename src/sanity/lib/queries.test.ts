@@ -99,6 +99,11 @@ dataset.push(
 	// would take the top list slots and the newest-post link of each country.
 	post("no-slug", "pl", "2026-05-01", { country: ref("italy") }),
 	post("iceland-no-slug", "pl", "2026-05-01", { country: ref("iceland") }),
+	post("no-title", "pl", "2026-05-01", {
+		title: undefined,
+		slug: slug("bez-tytulu"),
+		country: ref("italy"),
+	}),
 	post("iceland-en", "en", "2026-05-01", {
 		slug: slug("reykjavik"),
 		country: ref("iceland"),
@@ -219,9 +224,11 @@ describe("post lists link only to generated post pages", () => {
 		expect(ids(rome?.related ?? [])).toEqual(["venice", "milan"]);
 		const italy = home.countries.find((country) => country._id === "italy");
 		expect(italy?.latestPost).toEqual({ title: "rome", slug: "rzym" });
-		const norwayEn = (await getHomepageData("en")).countries.find(
-			(country) => country._id === "norway",
-		);
-		expect(norwayEn?.latestPost).toBeNull();
+		// No EN slug: no EN page to link to, so no pin on the EN map. Iceland's
+		// only PL post is broken: its PL pin stays, without a popup link.
+		const enPins = (await getHomepageData("en")).countries;
+		expect(ids(enPins)).not.toContain("norway");
+		const iceland = home.countries.find((country) => country._id === "iceland");
+		expect(iceland?.latestPost).toBeNull();
 	});
 });

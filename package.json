@@ -15,6 +15,7 @@
 		"test": "vitest run",
 		"studio:dev": "sanity dev",
 		"studio:deploy": "sanity deploy",
+		"typegen": "sanity schema extract && sanity typegen generate",
 		"check": "biome check --write .",
 		"format": "biome format --write .",
 		"lint": "biome lint .",

@@ -1,9 +1,9 @@
-/** Fractions (0–1) cut off each edge in the Studio crop tool. */
+/** Fractions (0–1) cut off each edge in the Studio crop tool; unset = 0. */
 export interface Crop {
-	top: number;
-	bottom: number;
-	left: number;
-	right: number;
+	top?: number;
+	bottom?: number;
+	left?: number;
+	right?: number;
 }
 
 /**
@@ -13,11 +13,11 @@ export interface Crop {
  */
 export function croppedHeight(
 	width: number,
-	dims: { width: number; height: number } | null | undefined,
+	dims: { width: number | null; height: number | null } | null | undefined,
 	crop: Crop | null | undefined,
 	fallback: number,
 ): number {
-	if (!dims) return fallback;
+	if (!dims?.width || !dims.height) return fallback;
 	const visibleWidth =
 		dims.width * (1 - (crop?.left ?? 0) - (crop?.right ?? 0));
 	const visibleHeight =

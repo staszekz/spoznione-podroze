@@ -13,7 +13,9 @@
 			"!src/content/**/*.mdx",
 			"!public",
 			"!src/styles/global.css",
-			"!pnpm-lock.yaml"
+			"!pnpm-lock.yaml",
+			"!schema.json",
+			"!src/sanity/sanity.types.ts"
 		]
 	},
 	"formatter": {
