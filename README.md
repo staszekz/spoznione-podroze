@@ -12,14 +12,15 @@ Source of [spoznionepodroze.pl](https://spoznionepodroze.pl): a photo-centric PL
 
 Use Node 24 (`nvm use`).
 
-| Command                                  | What it does                                   |
-| ---------------------------------------- | ---------------------------------------------- |
-| `pnpm install`                           | Install dependencies                           |
-| `pnpm dev`                               | Dev server at `localhost:4321`                 |
-| `pnpm build`                             | Build the site into `dist/`                    |
-| `pnpm run check`                         | Biome lint + format (writes fixes)             |
-| `pnpm astro check`                       | TypeScript and Astro type check                |
-| `pnpm preview:cf`                        | Build and serve with Wrangler, like production |
-| `pnpm studio:dev` / `pnpm studio:deploy` | Run or deploy Sanity Studio                    |
+| Command                                  | What it does                                                                             |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `pnpm install`                           | Install dependencies                                                                     |
+| `pnpm dev`                               | Dev server at `localhost:4321`                                                           |
+| `pnpm build`                             | Build the site into `dist/`                                                              |
+| `pnpm run check`                         | Biome lint + format (writes fixes)                                                       |
+| `pnpm astro check`                       | TypeScript and Astro type check                                                          |
+| `pnpm preview:cf`                        | Build and serve with Wrangler, like production                                           |
+| `pnpm studio:dev` / `pnpm studio:deploy` | Run or deploy Sanity Studio                                                              |
+| `pnpm typegen`                           | Regenerate `schema.json` and `src/sanity/sanity.types.ts` after a schema or query change |
 
 Agent and contributor notes: [AGENTS.md](AGENTS.md).
