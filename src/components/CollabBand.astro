@@ -38,14 +38,14 @@ const r = routes[lang];
 		<div class="flex gap-2.5 md:flex-none md:flex-col">
 			<a
 				href={r.about}
-				class="flex h-[46px] flex-1 items-center justify-center rounded-full bg-background px-[26px] text-sm font-semibold text-foreground md:flex-none md:text-[15px]"
+				class="flex h-[46px] flex-1 items-center justify-center rounded-full bg-background px-[26px] text-sm font-semibold text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-image md:flex-none md:text-[15px]"
 			>
 				{t("collab.ctaAbout")}
 			</a>
 			{COLLAB_PAGE_LIVE && (
 				<a
 					href={r.collab}
-					class="flex h-[46px] flex-1 items-center justify-center rounded-full border border-on-image/60 px-[26px] text-sm font-semibold text-on-image md:flex-none md:text-[15px]"
+					class="flex h-[46px] flex-1 items-center justify-center rounded-full border border-on-image/80 px-[26px] text-sm font-semibold text-on-image focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-image md:flex-none md:text-[15px]"
 				>
 					{t("collab.ctaCollab")}
 				</a>
