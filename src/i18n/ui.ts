@@ -149,7 +149,8 @@ export type UiKey = keyof (typeof ui)["pl"];
 
 export function getLangFromUrl(url: URL): Lang {
 	const [, lang] = url.pathname.split("/");
-	if (lang && lang in ui) return lang as Lang;
+	// `in` would also accept prototype keys such as "constructor".
+	if (lang && Object.hasOwn(ui, lang)) return lang as Lang;
 	return defaultLang;
 }
 

@@ -1,5 +1,6 @@
 ---
 import SanityImage from "@/components/SanityImage.tsx";
+import { croppedHeight } from "@/lib/crop";
 import type { CaptionedImage } from "@/sanity/lib/queries";
 
 interface Props {
@@ -8,16 +9,12 @@ interface Props {
 
 const { node } = Astro.props;
 const WIDTH = 1440;
-// Keep the aspect ratio of what the author picked: the original minus the
-// Studio crop. Using the uncropped ratio made the builder crop a second time.
-const dims = node.asset?.metadata?.dimensions;
-const crop = node.crop;
-const height = dims
-	? Math.round(
-			(WIDTH * dims.height * (1 - (crop?.top ?? 0) - (crop?.bottom ?? 0))) /
-				(dims.width * (1 - (crop?.left ?? 0) - (crop?.right ?? 0))),
-		)
-	: 960;
+const height = croppedHeight(
+	WIDTH,
+	node.asset?.metadata?.dimensions,
+	node.crop,
+	960,
+);
 ---
 
 {node.asset && (

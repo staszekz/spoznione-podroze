@@ -38,7 +38,8 @@ Consult these guides before working on related tasks:
 ## Agent config
 
 - PR base branch: master
-- Tests: none by design
+- Tests: light
+- Test command: pnpm test
 - Verify command: pnpm run check
 - Review: required
 - Review skip paths: spec/, reports/
