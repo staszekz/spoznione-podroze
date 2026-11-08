@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { type Lang, postPath } from "@/i18n/ui";
 import { postsFeed } from "@/lib/rss";
 import {
@@ -63,12 +63,13 @@ dataset.push(
 		continent: ref("europe"),
 		location,
 	},
-	// Its only post is broken, so it must not count as a country with stories.
+	// Its only posts are broken, so it must not count as a country with stories.
+	// The EN slug is empty: `defined("")` is true in GROQ.
 	{
 		_id: "iceland",
 		_type: "country",
 		name: { pl: "Islandia", en: "Iceland" },
-		slug: { pl: slug("islandia"), en: slug("iceland") },
+		slug: { pl: slug("islandia"), en: slug("") },
 		continent: ref("europe"),
 		location,
 	},
@@ -98,6 +99,14 @@ dataset.push(
 	// would take the top list slots and the newest-post link of each country.
 	post("no-slug", "pl", "2026-05-01", { country: ref("italy") }),
 	post("iceland-no-slug", "pl", "2026-05-01", { country: ref("iceland") }),
+	post("iceland-en", "en", "2026-05-01", {
+		slug: slug("reykjavik"),
+		country: ref("iceland"),
+	}),
+	post("empty-slug", "pl", "2026-05-01", {
+		slug: slug(""),
+		country: ref("italy"),
+	}),
 	post("no-country", "pl", "2026-05-01", { slug: slug("bez-kraju") }),
 	post("deleted-country", "pl", "2026-05-01", {
 		slug: slug("zly-kraj"),
@@ -124,9 +133,9 @@ async function generatedRoutes(lang: Lang): Promise<string[]> {
 }
 
 describe("post lists link only to generated post pages", () => {
-	beforeAll(async () => {
-		// Guard: the fixtures really produce the expected pages, so the link
-		// checks below compare against something meaningful.
+	// Guard: the fixtures really produce the expected pages, so the link checks
+	// below compare against something meaningful.
+	it("generates pages only for posts with a full URL", async () => {
 		expect((await generatedRoutes("pl")).sort()).toEqual([...PL_ROUTES].sort());
 		expect(await generatedRoutes("en")).toEqual(EN_ROUTES);
 	});
@@ -205,6 +214,9 @@ describe("post lists link only to generated post pages", () => {
 			"venice",
 			"milan",
 		]);
+		// Related posts: same country, newest first, the broken newer sibling left out.
+		const rome = await getPost("pl", "wlochy", "rzym");
+		expect(ids(rome?.related ?? [])).toEqual(["venice", "milan"]);
 		const italy = home.countries.find((country) => country._id === "italy");
 		expect(italy?.latestPost).toEqual({ title: "rome", slug: "rzym" });
 		const norwayEn = (await getHomepageData("en")).countries.find(
