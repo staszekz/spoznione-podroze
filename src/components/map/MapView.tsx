@@ -103,7 +103,7 @@ function activeContinentEl(continent: ContinentSummary): HTMLElement {
 function pillEl(name: string, tag: "div" | "button" = "div"): HTMLElement {
 	const pill = el(
 		tag,
-		"inline-flex cursor-pointer items-center gap-[7px] rounded-full border border-border bg-card px-3.5 py-[7px] text-[13px] font-semibold text-card-foreground shadow-[0_4px_12px_rgba(31,27,22,0.08)]",
+		"inline-flex cursor-pointer items-center gap-[7px] rounded-full border border-border bg-card px-3.5 py-[7px] text-[13px] font-semibold text-card-foreground shadow-[0_4px_12px_rgba(31,27,22,0.08)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
 	);
 	pill.append(
 		el("span", "size-[7px] rounded-full bg-primary"),
