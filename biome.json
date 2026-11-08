@@ -12,7 +12,8 @@
 			"!src/content/**/*.md",
 			"!src/content/**/*.mdx",
 			"!public",
-			"!src/styles/global.css"
+			"!src/styles/global.css",
+			"!pnpm-lock.yaml"
 		]
 	},
 	"formatter": {
