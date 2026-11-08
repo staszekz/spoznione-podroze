@@ -41,3 +41,24 @@ jobs:
           # Optional: src/sanity/env.ts falls back to the production project when unset.
           PUBLIC_SANITY_PROJECT_ID: ${{ vars.PUBLIC_SANITY_PROJECT_ID }}
           PUBLIC_SANITY_DATASET: ${{ vars.PUBLIC_SANITY_DATASET }}
+
+      # Serves dist/ like production (_headers, 404 page) without a Cloudflare
+      # account, so a PR that breaks routing, the 404 page, the sitemap or the
+      # feeds fails here, before any deploy (LAN-152).
+      - name: Smoke test on wrangler dev
+        env:
+          WRANGLER_SEND_METRICS: "false"
+        run: |
+          pnpm exec wrangler dev --port 8787 > wrangler.log 2>&1 &
+          server=$!
+          trap 'kill "$server" 2>/dev/null' EXIT
+          for _ in $(seq 1 60); do
+            curl -s -o /dev/null http://localhost:8787/ && break
+            sleep 1
+          done
+          if ! curl -s -o /dev/null http://localhost:8787/; then
+            echo "wrangler dev did not answer within 60 s:"
+            cat wrangler.log
+            exit 1
+          fi
+          pnpm smoke http://localhost:8787
