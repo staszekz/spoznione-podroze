@@ -15,7 +15,7 @@ const r = routes[lang];
 <section class="py-6 md:py-9">
 	<div
 		class="flex flex-col gap-3.5 rounded-[18px] p-6 md:flex-row md:items-center md:justify-between md:gap-6 md:rounded-[22px] md:px-[38px] md:py-9"
-		style="background:linear-gradient(120deg, var(--primary), var(--primary-dark))"
+		style="background:linear-gradient(120deg, var(--collab-from), var(--collab-to))"
 	>
 		<div class="flex flex-col gap-2">
 			<span
@@ -30,7 +30,7 @@ const r = routes[lang];
 			</h2>
 			{/* Until the collab page is live, the band invites only to the about page. */}
 			{COLLAB_PAGE_LIVE && (
-				<p class="hidden max-w-[520px] text-[15px] text-on-image/90 md:block">
+				<p class="hidden max-w-[520px] text-[15px] text-on-image md:block">
 					{t("collab.lead")}
 				</p>
 			)}

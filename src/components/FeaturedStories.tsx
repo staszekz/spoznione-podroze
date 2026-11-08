@@ -101,7 +101,9 @@ export default function FeaturedStories({
 							fetchPriority="high"
 							className="transition-transform duration-500 group-hover:scale-[1.03]"
 						/>
-						<div className="pointer-events-none absolute inset-x-0 bottom-0 h-[60%] bg-gradient-to-t from-scrim/80 to-transparent" />
+						{/* Strong up to the eyebrow line: text must stay ≥ 4.5:1 even on a
+						    white photo (LAN-164); the fade starts above the text. */}
+						<div className="pointer-events-none absolute inset-x-0 bottom-0 h-[60%] bg-gradient-to-t from-scrim/85 via-scrim/75 via-55% to-transparent" />
 						<div className="pointer-events-none absolute inset-x-[18px] bottom-[18px] flex flex-col gap-2 md:inset-x-7 md:bottom-7">
 							<span className="font-mono text-[10px] uppercase tracking-[0.08em] text-on-image-eyebrow md:text-[11px]">
 								{[main.country.name, continent?.name, tripYear(main.tripDate)]
