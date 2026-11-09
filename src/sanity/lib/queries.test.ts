@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { type Lang, postPath } from "@/i18n/ui";
 import { postsFeed } from "@/lib/rss";
 import {
+	getAboutPage,
 	getContinentPosts,
 	getContinents,
 	getHomepageData,
@@ -128,6 +129,26 @@ dataset.push(
 	}),
 );
 
+// The about page lists its authors by reference. A reference to a document that
+// is missing, or only a draft (not published yet), dereferences to null.
+dataset.push(
+	{
+		_id: "aboutPage",
+		_type: "aboutPage",
+		authors: [ref("staszek"), ref("joanna"), ref("author-that-was-deleted")],
+	},
+	{
+		_id: "staszek",
+		_type: "author",
+		name: "Staszek",
+		socials: [
+			{ _key: "ig", platform: "instagram", url: "https://example.com/ig" },
+			{ _key: "no-url", platform: "x" },
+		],
+	},
+	{ _id: "drafts.joanna", _type: "author", name: "Joanna" },
+);
+
 const PL_ROUTES = [
 	"/wlochy/rzym",
 	"/wlochy/wenecja",
@@ -235,5 +256,17 @@ describe("post lists link only to generated post pages", () => {
 		expect(ids(enPins)).not.toContain("norway");
 		const iceland = home.countries.find((country) => country._id === "iceland");
 		expect(iceland?.latestPost).toBeNull();
+	});
+});
+
+describe("about page authors", () => {
+	it("skips a reference that does not resolve instead of failing the build", async () => {
+		const page = await getAboutPage("pl");
+		// Joanna is only a draft and the third author is deleted: both are null.
+		expect(page?.authors?.map((author) => author._id)).toEqual(["staszek"]);
+		// A social link without a URL is skipped too.
+		expect(page?.authors?.[0].socials).toEqual([
+			{ _key: "ig", platform: "instagram", url: "https://example.com/ig" },
+		]);
 	});
 });

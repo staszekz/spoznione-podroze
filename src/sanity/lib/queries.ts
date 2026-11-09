@@ -291,14 +291,23 @@ export async function getAboutPage(lang: Lang): Promise<AboutPageData | null> {
 	if (!page) return null;
 	return {
 		...page,
-		// A link without a platform or URL renders as a dead anchor: skip it.
+		// `authors[]->` yields null for a reference to a missing or draft-only
+		// author, which the generated type does not show: skip it. A link without
+		// a platform or URL renders as a dead anchor: skip it too.
 		authors:
-			page.authors?.map((author) => ({
-				...author,
-				socials: (author.socials ?? []).filter((social): social is SocialLink =>
-					Boolean(social.platform && social.url),
-				),
-			})) ?? null,
+			page.authors?.flatMap((author) =>
+				author
+					? [
+							{
+								...author,
+								socials: (author.socials ?? []).filter(
+									(social): social is SocialLink =>
+										Boolean(social.platform && social.url),
+								),
+							},
+						]
+					: [],
+			) ?? null,
 	};
 }
 
