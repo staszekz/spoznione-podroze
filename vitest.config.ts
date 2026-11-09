@@ -20,5 +20,6 @@ export default getViteConfig({
 				},
 			},
 		],
+		include: ["src/**/*.test.ts", "scripts/**/*.test.ts"],
 	},
 });

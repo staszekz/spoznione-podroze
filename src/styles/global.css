@@ -27,7 +27,11 @@
 	--scrim: #1f1b16;
 	--on-image: #fbfaf7;
 	--on-image-eyebrow: #f6d9c8;
-	--collab-eyebrow: #fce0cf;
+	--collab-eyebrow: #fff1e9;
+	/* The collab band keeps the light-theme brand gradient in both themes: the dark
+	   theme primary is too light for its light text (LAN-164). */
+	--collab-from: #b0532f;
+	--collab-to: #9c4a2e;
 }
 
 .dark {
@@ -175,4 +179,32 @@
 	.post-body strong {
 		font-weight: 600;
 	}
+}
+
+/* MapLibre paints popups white; follow the theme so dark-mode text stays
+   readable. Unlayered with one extra class to beat maplibre-gl.css. */
+.maplibregl-popup .maplibregl-popup-content {
+	background: var(--card);
+}
+.maplibregl-popup:is(
+		.maplibregl-popup-anchor-top,
+		.maplibregl-popup-anchor-top-left,
+		.maplibregl-popup-anchor-top-right
+	)
+	.maplibregl-popup-tip {
+	border-bottom-color: var(--card);
+}
+.maplibregl-popup:is(
+		.maplibregl-popup-anchor-bottom,
+		.maplibregl-popup-anchor-bottom-left,
+		.maplibregl-popup-anchor-bottom-right
+	)
+	.maplibregl-popup-tip {
+	border-top-color: var(--card);
+}
+.maplibregl-popup.maplibregl-popup-anchor-left .maplibregl-popup-tip {
+	border-right-color: var(--card);
+}
+.maplibregl-popup.maplibregl-popup-anchor-right .maplibregl-popup-tip {
+	border-left-color: var(--card);
 }
