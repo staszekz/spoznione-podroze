@@ -18,8 +18,10 @@ const imageFragment = /* groq */ `
 // A post in language $lang has a page only with its own slug and its country's
 // slug in that language (see POST_SLUGS_QUERY). Every list uses this filter, so
 // it never links to a post without a page, e.g. one imported outside Studio.
+// `defined()` is true for "", so an empty slug is excluded explicitly.
 const routablePost = /* groq */ `_type == "post" && language == $lang
-	&& defined(slug.current) && defined(country->slug[$lang].current)`;
+	&& defined(slug.current) && slug.current != ""
+	&& defined(country->slug[$lang].current) && country->slug[$lang].current != ""`;
 
 const postCardFragment = /* groq */ `
 	_id,
