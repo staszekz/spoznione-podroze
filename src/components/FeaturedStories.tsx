@@ -101,8 +101,16 @@ export default function FeaturedStories({
 							fetchPriority="high"
 							className="transition-transform duration-500 group-hover:scale-[1.03]"
 						/>
-						<div className="pointer-events-none absolute inset-x-0 bottom-0 h-[60%] bg-gradient-to-t from-scrim/80 to-transparent" />
-						<div className="pointer-events-none absolute inset-x-[18px] bottom-[18px] flex flex-col gap-2 md:inset-x-7 md:bottom-7">
+						{/* The scrim wraps the text, so it grows with a long title or zoom:
+						    ≥ 75% under every line (≥ 4.5:1 even on a white photo, LAN-164),
+						    fading out only in the top padding. */}
+						<div
+							className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col gap-2 px-[18px] pt-24 pb-[18px] md:px-7 md:pb-7"
+							style={{
+								background:
+									"linear-gradient(to top, color-mix(in srgb, var(--scrim) 85%, transparent), color-mix(in srgb, var(--scrim) 75%, transparent) calc(100% - 6rem), transparent)",
+							}}
+						>
 							<span className="font-mono text-[10px] uppercase tracking-[0.08em] text-on-image-eyebrow md:text-[11px]">
 								{[main.country.name, continent?.name, tripYear(main.tripDate)]
 									.filter(Boolean)

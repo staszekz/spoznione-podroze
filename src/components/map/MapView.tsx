@@ -71,9 +71,13 @@ function continentButton(className: string, continent: ContinentSummary) {
 	return button;
 }
 
+// A solid ring: the global outline-ring/50 fallback barely shows on the light map.
+const FOCUS_RING =
+	"focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
+
 function activeContinentEl(continent: ContinentSummary): HTMLElement {
 	const root = continentButton(
-		"flex cursor-pointer flex-col items-center gap-[7px] rounded-2xl",
+		`flex cursor-pointer flex-col items-center gap-[7px] rounded-2xl ${FOCUS_RING}`,
 		continent,
 	);
 	root.setAttribute("aria-pressed", "true");
@@ -103,7 +107,7 @@ function activeContinentEl(continent: ContinentSummary): HTMLElement {
 function pillEl(name: string, tag: "div" | "button" = "div"): HTMLElement {
 	const pill = el(
 		tag,
-		"inline-flex cursor-pointer items-center gap-[7px] rounded-full border border-border bg-card px-3.5 py-[7px] text-[13px] font-semibold text-card-foreground shadow-[0_4px_12px_rgba(31,27,22,0.08)]",
+		`inline-flex cursor-pointer items-center gap-[7px] rounded-full border border-border bg-card px-3.5 py-[7px] text-[13px] font-semibold text-card-foreground shadow-[0_4px_12px_rgba(31,27,22,0.08)] ${FOCUS_RING}`,
 	);
 	pill.append(
 		el("span", "size-[7px] rounded-full bg-primary"),
@@ -134,7 +138,7 @@ function countryPopupEl(country: CountryPin, lang: Lang): HTMLElement {
 		);
 		const link = el(
 			"a",
-			"text-[13px] font-semibold text-primary",
+			`text-[13px] font-semibold text-primary ${FOCUS_RING}`,
 			`${ui[lang]["map.read"]} →`,
 		) as HTMLAnchorElement;
 		link.href = postPath(lang, country.slug, country.latestPost.slug);
@@ -346,7 +350,7 @@ export default function MapView({
 					type="button"
 					aria-label={ui[lang]["map.zoomIn"]}
 					onClick={() => mapRef.current?.zoomIn()}
-					className="flex size-9 cursor-pointer items-center justify-center border-b border-border text-card-foreground hover:bg-muted"
+					className="flex size-9 cursor-pointer items-center justify-center border-b border-border text-card-foreground hover:bg-muted focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
 				>
 					<Plus className="size-4" />
 				</button>
@@ -354,7 +358,7 @@ export default function MapView({
 					type="button"
 					aria-label={ui[lang]["map.zoomOut"]}
 					onClick={() => mapRef.current?.zoomOut()}
-					className="flex size-9 cursor-pointer items-center justify-center text-card-foreground hover:bg-muted"
+					className="flex size-9 cursor-pointer items-center justify-center text-card-foreground hover:bg-muted focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
 				>
 					<Minus className="size-4" />
 				</button>

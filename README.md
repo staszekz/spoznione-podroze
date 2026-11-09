@@ -23,5 +23,15 @@ Use Node 24 (`nvm use`).
 | `pnpm test:unit` / `pnpm test:integration` | One group: logic in Node, or React islands in jsdom |
 | `pnpm preview:cf`                          | Build and serve with Wrangler, like production      |
 | `pnpm studio:dev` / `pnpm studio:deploy`   | Run or deploy Sanity Studio                         |
+| Command                                        | What it does                                   |
+| ---------------------------------------------- | ---------------------------------------------- |
+| `pnpm install`                                 | Install dependencies                           |
+| `pnpm dev`                                     | Dev server at `localhost:4321`                 |
+| `pnpm build`                                   | Build the site into `dist/`                    |
+| `pnpm run check`                               | Biome lint + format (writes fixes)             |
+| `pnpm astro check`                             | TypeScript and Astro type check                |
+| `pnpm preview:cf`                              | Build and serve with Wrangler, like production |
+| `pnpm smoke <url> [--production \| --preview]` | HTTP smoke test of any deployment (`--help`)   |
+| `pnpm studio:dev` / `pnpm studio:deploy`       | Run or deploy Sanity Studio                    |
 
 Agent and contributor notes: [AGENTS.md](AGENTS.md).
