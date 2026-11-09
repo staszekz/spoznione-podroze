@@ -22,6 +22,58 @@ from that source via `sanity schema deploy` (Studio-managed — do not deploy vi
 `deploy_schema` tool, which would diverge). Content: `continent` -> `country` -> `post`,
 with document-level PL/EN translations on `post`.
 
+## Structure
+
+- `src/pages/`: PL pages at the root, EN pages under `src/pages/en/`. A new page gets both.
+- `src/components/`: `.astro` renders static HTML; `.tsx` files are React islands (map,
+  continent pills, mobile menu) sharing state through nanostores in `src/stores/`.
+- `src/i18n/ui.ts`: every UI string and every route (`routes`, `postPath`, `continentPath`).
+  UI text and links come from here, in both languages.
+- `src/sanity/lib/queries.ts`: all GROQ, each wrapped in `defineQuery`. Post lists filter
+  with the shared `routablePost` fragment, the same condition `getStaticPaths` uses.
+
+## Commands
+
+Scripts live in `package.json`; `README.md` has the overview. The ones with a catch:
+
+- `pnpm run check` writes Biome fixes: it is the local verify. CI runs the read-only
+  `pnpm lint:ci`, then `pnpm typecheck`, `pnpm test`, `pnpm build` (`.github/workflows/ci.yml`).
+- `pnpm preview:cf` builds and serves `dist/` with Wrangler at `localhost:8787`, applying
+  `public/_headers` and the 404 page like production.
+- `pnpm smoke <url> [--production | --preview]` checks a deployment over HTTP;
+  `pnpm smoke --help` lists the checks.
+
+## Tests
+
+`pnpm test` runs two Vitest projects; CI runs both.
+
+- `unit` (`src/**/*.test.ts`, Node): logic and GROQ. Queries run in memory with `groq-js`
+  and a mocked `sanity:client` (`src/sanity/lib/queries.test.ts`).
+- `integration` (`src/**/*.test.tsx`, jsdom + Testing Library): React islands working
+  together, data as props. `src/test/setup-dom.ts` resets the DOM and the stores per test.
+
+Playwright E2E is planned (LAN-173) and has no command yet.
+
+## Deploy
+
+Cloudflare Workers static assets (`wrangler.jsonc`, no Worker script), built by Workers
+Builds: a push to `master` deploys production, a PR gets a `*.workers.dev` preview with
+`X-Robots-Tag: noindex`. Rebuild on Sanity publish is not wired yet (LAN-155), so new
+content goes live with the next deploy. After a deploy, run
+`pnpm smoke https://spoznionepodroze.pl --production`.
+
+## Linear
+
+Project "Spóźnione Podróże", team LAN. Take issues labelled `ready-for-agent`; leave
+`human-only` issues to the user. Branch from the issue's Linear branch name and put the ID
+(`LAN-123`) in the PR title or body. The user moves issue statuses.
+
+## Guardrails
+
+- Secrets live in `.env`, Cloudflare and GitHub settings; the repo holds only public IDs
+  (`src/sanity/env.ts`, `PUBLIC_SANITY_*`).
+- In Sanity, agents create drafts; the user publishes.
+
 ## Documentation
 
 Full documentation: https://docs.astro.build

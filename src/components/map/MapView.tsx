@@ -350,7 +350,7 @@ export default function MapView({
 					type="button"
 					aria-label={ui[lang]["map.zoomIn"]}
 					onClick={() => mapRef.current?.zoomIn()}
-					className="flex size-9 cursor-pointer items-center justify-center border-b border-border text-card-foreground hover:bg-muted"
+					className="flex size-9 cursor-pointer items-center justify-center border-b border-border text-card-foreground hover:bg-muted focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
 				>
 					<Plus className="size-4" />
 				</button>
@@ -358,7 +358,7 @@ export default function MapView({
 					type="button"
 					aria-label={ui[lang]["map.zoomOut"]}
 					onClick={() => mapRef.current?.zoomOut()}
-					className="flex size-9 cursor-pointer items-center justify-center text-card-foreground hover:bg-muted"
+					className="flex size-9 cursor-pointer items-center justify-center text-card-foreground hover:bg-muted focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
 				>
 					<Minus className="size-4" />
 				</button>
