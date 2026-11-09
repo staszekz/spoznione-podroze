@@ -1,0 +1,48 @@
+name: Production smoke
+
+# HTTP only: no build, no secrets. A red run sends GitHub's standard
+# "workflow failed" notification (LAN-157).
+on:
+  schedule:
+    - cron: "17 6 * * *" # daily, 06:17 UTC
+  workflow_dispatch:
+    inputs:
+      base-url:
+        description: Address to test
+        default: https://spoznionepodroze.pl
+        required: true
+      mode:
+        description: "--production on the real domain, --preview on a workers.dev preview, none for base checks only"
+        type: choice
+        options: [production, preview, none]
+        default: production
+  # Runs the real production check when this workflow changes, so a PR shows it works.
+  pull_request:
+    paths: [.github/workflows/smoke-production.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+
+      # Node from .nvmrc: the script relies on Node 24's TypeScript stripping.
+      - uses: pnpm/setup@v3
+        with:
+          cache: true
+          require-lockfile: true
+
+      - name: Smoke test
+        env:
+          BASE_URL: ${{ inputs.base-url || 'https://spoznionepodroze.pl' }}
+          MODE: ${{ inputs.mode || 'production' }}
+        run: |
+          if [ "$MODE" = "none" ]; then
+            pnpm smoke "$BASE_URL"
+          else
+            pnpm smoke "$BASE_URL" "--$MODE"
+          fi
