@@ -7,7 +7,10 @@ export default getViteConfig({
 		projects: [
 			{
 				extends: true,
-				test: { name: "unit", include: ["src/**/*.test.ts"] },
+				test: {
+					name: "unit",
+					include: ["src/**/*.test.ts", "scripts/**/*.test.ts"],
+				},
 			},
 			// React islands working together in a DOM, without a browser or the CMS.
 			{
@@ -20,6 +23,5 @@ export default getViteConfig({
 				},
 			},
 		],
-		include: ["src/**/*.test.ts", "scripts/**/*.test.ts"],
 	},
 });
