@@ -11,6 +11,7 @@
 		"build": "astro build",
 		"preview": "astro preview",
 		"preview:cf": "astro build && wrangler dev",
+		"smoke": "node scripts/smoke.ts",
 		"astro": "astro",
 		"test": "vitest run",
 		"studio:dev": "sanity dev",
@@ -54,6 +55,7 @@
 	"devDependencies": {
 		"@astrojs/check": "^0.9.12",
 		"@biomejs/biome": "^2.6.3",
+		"fast-xml-parser": "^5.12.0",
 		"groq-js": "^2.0.1",
 		"typescript": "^6.0.3",
 		"vite": "^8.3.5",
