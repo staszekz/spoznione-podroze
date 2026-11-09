@@ -27,7 +27,11 @@
 	--scrim: #1f1b16;
 	--on-image: #fbfaf7;
 	--on-image-eyebrow: #f6d9c8;
-	--collab-eyebrow: #fce0cf;
+	--collab-eyebrow: #fff1e9;
+	/* The collab band keeps the light-theme brand gradient in both themes: the dark
+	   theme primary is too light for its light text (LAN-164). */
+	--collab-from: #b0532f;
+	--collab-to: #9c4a2e;
 }
 
 .dark {
