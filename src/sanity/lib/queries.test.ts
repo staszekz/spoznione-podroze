@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { type Lang, postPath } from "@/i18n/ui";
 import { postsFeed } from "@/lib/rss";
 import {
+	getAboutPage,
 	getContinentPosts,
 	getContinents,
 	getHomepageData,
@@ -99,6 +100,16 @@ dataset.push(
 	// would take the top list slots and the newest-post link of each country.
 	post("no-slug", "pl", "2026-05-01", { country: ref("italy") }),
 	post("iceland-no-slug", "pl", "2026-05-01", { country: ref("iceland") }),
+	post("empty-title", "pl", "2026-05-01", {
+		title: "",
+		slug: slug("pusty-tytul"),
+		country: ref("italy"),
+	}),
+	post("no-title", "pl", "2026-05-01", {
+		title: undefined,
+		slug: slug("bez-tytulu"),
+		country: ref("italy"),
+	}),
 	post("iceland-en", "en", "2026-05-01", {
 		slug: slug("reykjavik"),
 		country: ref("iceland"),
@@ -116,6 +127,26 @@ dataset.push(
 		slug: slug("fjords"),
 		country: ref("norway"),
 	}),
+);
+
+// The about page lists its authors by reference. A reference to a document that
+// is missing, or only a draft (not published yet), dereferences to null.
+dataset.push(
+	{
+		_id: "aboutPage",
+		_type: "aboutPage",
+		authors: [ref("staszek"), ref("joanna"), ref("author-that-was-deleted")],
+	},
+	{
+		_id: "staszek",
+		_type: "author",
+		name: "Staszek",
+		socials: [
+			{ _key: "ig", platform: "instagram", url: "https://example.com/ig" },
+			{ _key: "no-url", platform: "x" },
+		],
+	},
+	{ _id: "drafts.joanna", _type: "author", name: "Joanna" },
 );
 
 const PL_ROUTES = [
@@ -219,9 +250,23 @@ describe("post lists link only to generated post pages", () => {
 		expect(ids(rome?.related ?? [])).toEqual(["venice", "milan"]);
 		const italy = home.countries.find((country) => country._id === "italy");
 		expect(italy?.latestPost).toEqual({ title: "rome", slug: "rzym" });
-		const norwayEn = (await getHomepageData("en")).countries.find(
-			(country) => country._id === "norway",
-		);
-		expect(norwayEn?.latestPost).toBeNull();
+		// No EN slug: no EN page to link to, so no pin on the EN map. Iceland's
+		// only PL post is broken: its PL pin stays, without a popup link.
+		const enPins = (await getHomepageData("en")).countries;
+		expect(ids(enPins)).not.toContain("norway");
+		const iceland = home.countries.find((country) => country._id === "iceland");
+		expect(iceland?.latestPost).toBeNull();
+	});
+});
+
+describe("about page authors", () => {
+	it("skips a reference that does not resolve instead of failing the build", async () => {
+		const page = await getAboutPage("pl");
+		// Joanna is only a draft and the third author is deleted: both are null.
+		expect(page?.authors?.map((author) => author._id)).toEqual(["staszek"]);
+		// A social link without a URL is skipped too.
+		expect(page?.authors?.[0].socials).toEqual([
+			{ _key: "ig", platform: "instagram", url: "https://example.com/ig" },
+		]);
 	});
 });

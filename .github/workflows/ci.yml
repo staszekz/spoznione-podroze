@@ -30,6 +30,11 @@ jobs:
       - name: Lint
         run: pnpm lint:ci
 
+      # Generated from the schema and the defineQuery queries; a stale copy would
+      # type the site against queries it no longer runs.
+      - name: Sanity types are up to date
+        run: pnpm typegen && git diff --exit-code -- schema.json src/sanity/sanity.types.ts
+
       - name: Typecheck
         run: pnpm typecheck
 

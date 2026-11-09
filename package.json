@@ -18,6 +18,7 @@
 		"test:integration": "vitest run --project integration",
 		"studio:dev": "sanity dev",
 		"studio:deploy": "sanity deploy",
+		"typegen": "sanity schema extract --force && sanity typegen generate",
 		"check": "biome check --write .",
 		"format": "biome format --write .",
 		"lint": "biome lint .",
