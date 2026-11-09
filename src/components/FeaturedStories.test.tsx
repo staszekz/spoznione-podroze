@@ -15,7 +15,7 @@ function continent(
 		_id,
 		name,
 		slug: name.toLowerCase(),
-		location: { lat: 0, lng: 0 },
+		location: { _type: "geopoint", lat: 0, lng: 0 },
 		image: null,
 		postCount,
 	};
@@ -34,6 +34,7 @@ function story(
 		excerpt: null,
 		readingTime: 5,
 		photoCount: null,
+		publishedAt: "2025-06-02",
 		tripDate: "2025-06-01",
 		coverImage: null,
 		country: { name: country, slug: country.toLowerCase(), continentId },
